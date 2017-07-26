@@ -1120,6 +1120,9 @@ def imcombine(im_list, output_name, method,
             index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
         elif im_list[0].lower().__contains__("red"):
+            index = 2.
+            img_block, Scale= Mult_Scale(img_block,index)
+        else:
             index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
     # If Not, Dont Scale # 
