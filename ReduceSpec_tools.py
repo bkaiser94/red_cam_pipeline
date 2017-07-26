@@ -1115,12 +1115,12 @@ def imcombine(im_list, output_name, method,
         img_block, Scale= Add_Scale(img_block)
     # If Flats Multiplicative Scale Images # 
     elif im_list[0].lower().__contains__("flat"):
-        print "elif print statement exectured"
+        print "elif print statement executed"
         if im_list[0].lower().__contains__("blue"):
             index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
         elif im_list[0].lower().__contains__("red"):
-            index = 2.
+            index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
     # If Not, Dont Scale # 
     else: 
