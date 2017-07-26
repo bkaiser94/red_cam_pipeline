@@ -1083,6 +1083,7 @@ def imcombine(im_list, output_name, method,
     
     # Read image data and put it in a numpy block # 
     Ni = len(im_list)
+    print "Ni : ", Ni
     for i in range(0, Ni):
         # First size the array to contain the data based on 1st image #
         # Create block with 3 axis:
@@ -1110,9 +1111,11 @@ def imcombine(im_list, output_name, method,
         
     # If Zero Additive Scale Images # 
     if im_list[0].lower().__contains__("zero"):
+        print "if statement executed." 
         img_block, Scale= Add_Scale(img_block)
     # If Flats Multiplicative Scale Images # 
     elif im_list[0].lower().__contains__("flat"):
+        print "elif print statement exectured"
         if im_list[0].lower().__contains__("blue"):
             index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
@@ -1124,6 +1127,8 @@ def imcombine(im_list, output_name, method,
         print "Did Not Scale Images.\n" 
         Scale= np.empty(Ni)
         Scale[:]= np.NaN
+        print "else Scale statement executed"
+        print "Scale: ", Scale
     
     # Print Name and Statistics of Each image % 
     avgarr,stdarr = np.zeros(Ni), np.zeros(Ni)
