@@ -544,7 +544,10 @@ def Norm_Flat_Poly( flat , order):
     # Read Flat and Average Center Rows # 
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
-    fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
+    if len(flat_data.shape) == 2:
+        fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
+    elif len(flat_data.shape) == 1:
+        fit_data= np.median(flat_data[95:105], axis=0) # Median of center Rows ###
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions and littrow ghost. #
     lo= 10;
