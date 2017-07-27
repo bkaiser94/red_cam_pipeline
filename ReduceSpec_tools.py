@@ -72,6 +72,7 @@ def checkspec(listcheck):
     #Max values acceptable
     maxcendev = 2. #Deviation from center of gaussian
     maxfwhmdev = 0.5 #deviation of fwhm
+    print "listcheck: ", listcheck
 
     fwhm1 = np.zeros(len(listcheck))
     fwhm2 = np.zeros(len(listcheck))

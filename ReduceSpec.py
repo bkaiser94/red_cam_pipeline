@@ -219,7 +219,8 @@ def reduce_now(args):
     
     cftb_spec_list = rt.List_Combe(cftb_spec)
     cftb_mask_list = rt.List_Combe(cftb_mask)
-    
+    print "cftb_spec_list: ", cftb_spec_list
+
     # Combine Spectra # 
     i= 0 
     comb_fb_spec = []
