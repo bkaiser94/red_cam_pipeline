@@ -339,7 +339,7 @@ def Trim_Spec(img):
         length = float(img_head['PARAM17'])
     except KeyError:
         length = float(img_head['PG3_1'])
-    except:
+    else:
         length = float(img_head['PG5_10']) #Red camera header value
     if length == 2071.:
         img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
