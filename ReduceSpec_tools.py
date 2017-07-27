@@ -431,7 +431,10 @@ def lacosmic(img):
     print 'Finding cosmic rays in ', img
     datalist = fits.open(img)
     data = datalist[0].data
-    data2 = data[0,:,:]
+    if len(data.shape) == 3:
+        data2 = data[0,:,:]
+    elif len(data.shape)== 2:
+        data2= data[:,:]
     array = data2
     header = fits.getheader(img)
     Fix_Header(header) 
