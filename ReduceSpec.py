@@ -170,12 +170,18 @@ def reduce_now(args):
         i= i+1
                         
     # Flat Field Individual Spectra #
+    print "nb_flat:"
+    print nb_flat
     blueindex = [i for i, s in enumerate(nb_flat) if 'blue' in s.lower()]
-    print "blue index: ", blueindex
-    nbflatblue = nb_flat[blueindex[0]]
+    if len(blueindex)>0:
+        nbflatblue = nb_flat[blueindex[0]]
     redindex = [i for i, s in enumerate(nb_flat) if 'red' in s.lower()]
     if len(redindex) > 0:
         nbflatred = nb_flat[redindex[0]]
+    if not ((len(blueindex)>0) or (len(redindex)>0)):
+        print "No colors present in filenames."
+        print "Assuming the blue indexing rules"
+    nbflatblue= nb_flat
     i= 0
     ftb_spec_list = []
     tb_spec_list = rt.List_Combe(tb_spec_list)
