@@ -171,6 +171,7 @@ def reduce_now(args):
                         
     # Flat Field Individual Spectra #
     blueindex = [i for i, s in enumerate(nb_flat) if 'blue' in s.lower()]
+    print "blue index: ", blueindex
     nbflatblue = nb_flat[blueindex[0]]
     redindex = [i for i, s in enumerate(nb_flat) if 'red' in s.lower()]
     if len(redindex) > 0:
