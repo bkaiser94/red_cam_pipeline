@@ -73,7 +73,12 @@ def reduce_now(args):
         fe_names.append(lamp[0][5:])
     
     # Default values for special commands if none are given these dont change #   
-    overwrite = False # dont give imcombine permision to overwrite files # 
+    overwrite = True # dont give imcombine permision to overwrite files # 
+    print "\n==============="
+    print "Current default to overwrite is set to " , str(overwrite), "."
+    print "You will not be prompted as to whether or not you would like to overwrite combined files."
+    print "See the reduce_now function in ReduceSpec to change the default value of the 'overwrite' variable."
+    print "===============\n"
     lo_sig = 10
     hi_sig = 3
     method = 'median' # method used to combine images 
@@ -191,7 +196,7 @@ def reduce_now(args):
         else: 
             print ("Problem applying the Flats." )
             print ("Could not identify blue or red setup, so we're keeping all of them.")
-            ftb_spec_list.append( rt.Flat_Field(tb_spec_list[i], nbflat) )
+            ftb_spec_list.append( rt.Flat_Field(tb_spec_list[i], nb_flat) )
             
         i= i+1
 
