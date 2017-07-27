@@ -611,9 +611,9 @@ def Norm_Flat_Poly( flat , order):
 def Norm_Flat_Boxcar( flat ):
     print 'Normalizing ', flat , 'by boxcar smoothing'
     flat_image = fits.getdata(flat)
-    if len(flat_data.shape) == 3:
+    if len(flat_image.shape) == 3:
         flat_data = flat_image[0,:,:] ###
-    elif len(flat_data.shape) == 2:
+    elif len(flat_image.shape) == 2:
         flat_data = flat_image[:,:] ###
     #See if littrow ghost file already exists for blue files
     if flat.lower().__contains__("blue")== True:
