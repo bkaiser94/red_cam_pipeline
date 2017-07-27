@@ -571,12 +571,21 @@ def Norm_Flat_Poly( flat , order):
         diagnostic[0:len(X[lo:hi]),25] = X[lo:hi]
         diagnostic[0:len(fit_data[lo:hi]),26] = fit_data[lo:hi]
         diagnostic[0:len(profile),27] = profile
-    # Divide each Row by the Profile # 
-    for row in flat_data[0]:
-        i= 0; 
-        while i < len(row): 
-            row[i]= row[i]/profile[i]
-            i= i+1   
+    # Divide each Row by the Profile #
+    else:
+        pass
+    if len(flat_data.shape)==3:
+        for row in flat_data[0]:
+            i= 0; 
+            while i < len(row): 
+                row[i]= row[i]/profile[i]
+                i= i+1  
+    elif len(flat_data.shape) ==2:
+        for row in flat_data:
+            i= 0; 
+            while i < len(row): 
+                row[i]= row[i]/profile[i]
+                i= i+1  
             
     # Copy Header, write changes, and write file #
     hdu = fits.getheader(flat)
