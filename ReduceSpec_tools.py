@@ -545,9 +545,9 @@ def Norm_Flat_Poly( flat , order):
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
     print "flat_data.shape: ", flat_data.shape
-    if len(flat_data.shape) == 2:
+    if len(flat_data.shape) == 3:
         fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
-    elif len(flat_data.shape) == 1:
+    elif len(flat_data.shape) == 2:
         fit_data= np.median(flat_data[95:105], axis=0) # Median of center Rows ###
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions and littrow ghost. #
@@ -1100,7 +1100,6 @@ def imcombine(im_list, output_name, method,
     
     # Read image data and put it in a numpy block # 
     Ni = len(im_list)
-    print "Ni : ", Ni
     for i in range(0, Ni):
         # First size the array to contain the data based on 1st image #
         # Create block with 3 axis:
@@ -1128,11 +1127,9 @@ def imcombine(im_list, output_name, method,
         
     # If Zero Additive Scale Images # 
     if im_list[0].lower().__contains__("zero"):
-        print "if statement executed." 
         img_block, Scale= Add_Scale(img_block)
     # If Flats Multiplicative Scale Images # 
     elif im_list[0].lower().__contains__("flat"):
-        print "elif print statement executed"
         if im_list[0].lower().__contains__("blue"):
             index = 1.
             img_block, Scale= Mult_Scale(img_block,index)
@@ -1147,8 +1144,6 @@ def imcombine(im_list, output_name, method,
         print "Did Not Scale Images.\n" 
         Scale= np.empty(Ni)
         Scale[:]= np.NaN
-        print "else Scale statement executed"
-        print "Scale: ", Scale
     
     # Print Name and Statistics of Each image % 
     avgarr,stdarr = np.zeros(Ni), np.zeros(Ni)
