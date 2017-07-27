@@ -32,6 +32,7 @@ from glob import glob
 
 ReduceSpec.reduce_now(['script_name','listZero','listFlat','listSpec','listFe'])
 
+to_flux= False
 
 #========================
 #Begin Spectral Extraction
@@ -73,6 +74,11 @@ for x in spec_files:
         lamp_file = lamp_file_blue[0]
     elif 'red' in x.lower():
         lamp_file = lamp_file_red[0]
+    else:
+        print "no colors in spec name... again"
+        print "using this file:"
+        lamp_file= sorted(glob(tFe*fits))[0]
+        print lamp_file
     FWHM_thisfile = FWHM_files[spec_files.index(x)]
     trace_thisfile = trace_files[spec_files.index(x)]
     if trace_thisfile != None:
@@ -156,7 +162,10 @@ continuum_files = sorted(continuum_files)
 '''
 stdlist = None
 fluxlist = None
-flux_calibration.flux_calibrate_now(stdlist,fluxlist,continuum_files,extinct_correct=True,masterresp=True)
+if to_flux:
+    flux_calibration.flux_calibrate_now(stdlist,fluxlist,continuum_files,extinct_correct=True,masterresp=True)
+if not to_flux:
+    print "Not Flux calibrating since to_flux == :" , to_flux
 
 #=========================
 #Begin Flux Calibration
