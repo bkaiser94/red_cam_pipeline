@@ -335,12 +335,19 @@ def Trim_Spec(img):
     img_head= fits.getheader(img) 
     img_data= fits.getdata(img)    
     Fix_Header(img_head)
-    try:
-        length = float(img_head['PARAM17'])
-    except KeyError:
-        length = float(img_head['PG3_1'])
-    else:
-        length = float(img_head['PG5_10']) #Red camera header value
+    length_headers= ['PARAM17', 'PG3_1', 'PG5_10']
+    for attempt in length_headers:
+        try:
+            length = float(img_head[attempt])
+            break
+        except KeyError:
+            pass
+    #try:
+        #length = float(img_head['PARAM17'])
+    #except KeyError:
+        #length = float(img_head['PG3_1'])
+    #else:
+        #length = float(img_head['PG5_10']) #Red camera header value
     if length == 2071.:
         img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
