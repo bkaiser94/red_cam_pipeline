@@ -337,7 +337,7 @@ def Trim_Spec(img):
     Fix_Header(img_head)
     try:
         length = float(img_head['PARAM17'])
-    except:
+    except KeyError:
         length = float(img_head['PG3_1'])
     except KeyError:
         length = float(img_head['PG5_10']) #Red camera header value
