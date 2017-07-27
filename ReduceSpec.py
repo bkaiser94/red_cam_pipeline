@@ -76,7 +76,8 @@ def reduce_now(args):
     overwrite = True # dont give imcombine permision to overwrite files # 
     print "\n==============="
     print "Current default to overwrite is set to " , str(overwrite), "."
-    print "You will not be prompted as to whether or not you would like to overwrite combined files."
+    if overwrite:
+        print "You will not be prompted as to whether or not you would like to overwrite combined files."
     print "See the reduce_now function in ReduceSpec to change the default value of the 'overwrite' variable."
     print "===============\n"
     lo_sig = 10
@@ -196,7 +197,7 @@ def reduce_now(args):
         else: 
             print ("Problem applying the Flats." )
             print ("Could not identify blue or red setup, so we're keeping all of them.")
-            ftb_spec_list.append( rt.Flat_Field(tb_spec_list[i], nb_flat) )
+            ftb_spec_list.append( rt.Flat_Field(tb_spec_list[i], nb_flat[0]) )
             
         i= i+1
 
