@@ -544,6 +544,7 @@ def Norm_Flat_Poly( flat , order):
     # Read Flat and Average Center Rows # 
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
+    print "flat_data.shape: ", flat_data.shape
     if len(flat_data.shape) == 2:
         fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
     elif len(flat_data.shape) == 1:
