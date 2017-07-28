@@ -52,10 +52,13 @@ try:
     
     trim_sec= spec_header["CCDSEC"]
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
-    try:
-        bining= float( spec_header["PARAM18"] ) 
-    except:
-        bining= float( spec_header["PG3_2"] ) 
+    length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
+    for attempt in length_headers:
+        try:
+            length = float(img_head[attempt])
+            break
+        except KeyError:
+            pass
     nx= np.size(spec_data[0])
     Pixels= bining*(np.arange(0,nx,1)+trim_offset)
     
