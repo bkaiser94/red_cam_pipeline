@@ -225,6 +225,7 @@ def reduce_now(args):
     i= 0 
     comb_fb_spec = []
     while i < nsp:
+        print "==========\nnew iteration \n"
         rt.checkspec(cftb_spec_list[i])
         comb_fb_spec.append ( rt.imcombine(cftb_spec_list[i], 'cftb.'+spec_names[i], 'average', 
                                            lo_sig= 10, hi_sig= 3, overwrite= overwrite,mask=cftb_mask_list[i]) )
