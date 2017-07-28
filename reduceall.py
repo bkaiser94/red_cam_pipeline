@@ -33,6 +33,7 @@ from glob import glob
 ReduceSpec.reduce_now(['script_name','listZero','listFlat','listSpec','listFe'])
 
 to_flux= False
+to_cosmic = False
 
 #========================
 #Begin Spectral Extraction
@@ -163,6 +164,8 @@ continuum_files = sorted(continuum_files)
 stdlist = None
 fluxlist = None
 if to_flux:
+    print '============='
+    print 'Flux calibrating images'
     flux_calibration.flux_calibrate_now(stdlist,fluxlist,continuum_files,extinct_correct=True,masterresp=True)
 if not to_flux:
     print "Not Flux calibrating since to_flux == :" , to_flux
