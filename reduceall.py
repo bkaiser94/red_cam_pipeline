@@ -50,6 +50,9 @@ spec_files = sorted(spec_files)
 lamp_file_blue = sorted(glob('tFe*blue*fits'))
 lamp_file_red = sorted(glob('tFe*red*fits'))
 
+print "lamp_file_blue: ", lamp_file_blue
+print "lamp_file_red: ", lamp_file_red
+
 
 #Search for FWHM and trace file for each spectrum. If it does not exist, these go to None and will be fit and saved during the extraction.
 trace_files = []
