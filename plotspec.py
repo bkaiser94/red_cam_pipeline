@@ -37,8 +37,16 @@ elif len(argv) == 1:
 else:
     print 'Too many inputs. Please try again.'
     exit()
-
-spec_data= fits.getdata(specname)
+counts = 0
+while counts < 10:
+    try:
+        spec_data= fits.getdata(specname)
+        break
+    except IOError:
+        counts +=1
+        print "Invalid Filename. Check filename and try again."
+        specname = raw_input('Name of spectrum to plot: ')
+        pass
 spec_header= fits.getheader(specname)
 
 #See if wavelength solution exists. If so, use it. Otherwise, use pixel numbers
