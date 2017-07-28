@@ -67,12 +67,15 @@ def checkspec(listcheck):
     #Calculates the FWHM and profile postion for two points on each spectrum
     #If these values deviate by more than given values, prints warning.
     #Saves all values in a text file.
+    print "pre gen listcheck: ", listcheck
+    print type(listcheck)
     listcheck = np.genfromtxt(listcheck,dtype=str)
     print '\n \n Now checking FWHM and center of spectral profile for stability.'
     #Max values acceptable
     maxcendev = 2. #Deviation from center of gaussian
     maxfwhmdev = 0.5 #deviation of fwhm
     print "listcheck: ", listcheck
+    print type(listcheck)
 
     fwhm1 = np.zeros(len(listcheck))
     fwhm2 = np.zeros(len(listcheck))
