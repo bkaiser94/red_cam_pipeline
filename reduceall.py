@@ -77,6 +77,7 @@ for x in spec_files:
     else:
         print "no colors in spec name... again"
         print "using this file:"
+        print sorted(glob('tFe*fits'))
         lamp_file= sorted(glob('tFe*fits'))[0]
         print lamp_file
     FWHM_thisfile = FWHM_files[spec_files.index(x)]
