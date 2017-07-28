@@ -81,7 +81,7 @@ for x in spec_files:
         print "no colors in spec name... again"
         print "using this file:"
         print sorted(glob('tFe*fits'))
-        lamp_file_a= sorted(glob('tFe*fits'))
+        lamp_file_a= sorted(glob('tFe*fits')+glob('t*_fe*fits'))
         print "lamp_file_a: ", lamp_file_a
         lamp_file = lamp_file_a[0]
         print lamp_file
