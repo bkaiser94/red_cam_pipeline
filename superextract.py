@@ -617,7 +617,7 @@ def superExtract(*args, **kw):
             # Base our nreject-counting only on pixels within the spectral trace:
             maxRejectedValue = max(csigma**2, np.sort(outlierVariances[Qmask])[-nreject])
             worstOutliers = (outlierVariances>=maxRejectedValue).nonzero()
-            goodpixelmask[worstOutliers] = False
+            #goodpixelmask[worstOutliers] = False #changedthisvalue
             numberRejected = len(worstOutliers[0])
             #pdb.set_trace()
         #newvar= False
