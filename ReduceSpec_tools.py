@@ -353,12 +353,15 @@ def Trim_Spec(img):
     #else:
         #length = float(img_head['PG5_10']) #Red camera header value
     if length == 2071.:
-        img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
-                   useblanks= True, bottom= True )
+        #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                   #useblanks= True, bottom= True )
         try:
-            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head)
+            img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                   useblanks= True, bottom= True )
+            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head) #works for blue camera
         except IndexError:
-            NewHdu = fits.PrimaryHDU(data= img_data[1:200, 9:2055], header= img_head)
+            img_head['CCDSEC']=  '[30:2055,1:200]' 
+            NewHdu = fits.PrimaryHDU(data= img_data[1:200, 30:2055], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
         return (new_file_name)
