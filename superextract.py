@@ -299,6 +299,7 @@ def superExtract(*args, **kw):
     #background_rms = np.zeros(nlam)
     #bkgrndmask = goodpixelmask
     for ii in range(nlam):
+        print "first ii: ", ii
         if goodpixelmask[ii, backgroundApertures[ii]].any():
             fit,fit_chisq,fit_niter = polyfitr(xxx[ii,backgroundApertures[ii]], frame[ii, backgroundApertures[ii]], bord, bsigma, w=(goodpixelmask/variance)[ii, backgroundApertures[ii]], verbose=verbose-1,plotall=False,diag=True)
             #If you want to plot the fit to the background you can use this. Or set plotall=True above
