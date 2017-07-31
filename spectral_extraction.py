@@ -283,7 +283,7 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
         low_pixel, high_pixel = 825., 875.
     else:
         print "Assuming blue setup since we're not matching the naming convention in yet another spot.\nThis time for low_pixel and high_pixel in spectral_extraction.py"
-        low_pixl, high_pixel = 1125., 1175.
+        low_pixel, high_pixel = 1125., 1175.
     shortspec = output_spec.spectrum[:,0][low_pixel:high_pixel]
     shortsigma = sigSpectrum[:,0][low_pixel:high_pixel]
     shortpix = np.linspace(low_pixel,high_pixel,num=(high_pixel-low_pixel),endpoint=False)
