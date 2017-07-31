@@ -587,6 +587,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         line_list= WaveList_Fe_930_12_24
     else: 
         print "Could not detect setup!" 
+        print "So we'll calm down and just assume blue."
+        parm = Param_930_12_24
+        line_list = WaveList_Fe_930_12_24
 
     # Calculate Initial Guess Solution # ========================================
 
@@ -606,6 +609,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             offset = offsets[0]
         elif 'red' in lamp.lower():
             offset = offsets[1]
+        else:
+            print "Color check yet again. This time for offset index."
+            offset = offsets[0]
         Wavelengths= [w+offset for w in Wavelengths]
     else:
         # Plot Dispersion # 
