@@ -661,7 +661,8 @@ def superExtract(*args, **kw):
     except UnboundLocalError:
         #changedthisvalue
         stand_in_array = np.array([0., 0., 0.])
-        ret.background = stand_in_array#background_at_trace 
+        #ret.background = stand_in_array#background_at_trace
+        ret.background = background_at_trace 
         ret.backgroundcolumnpixels = stand_in_array
         ret.backgroundcolumnvalues = stand_in_array
         ret.backgroundfitpixels = stand_in_array
