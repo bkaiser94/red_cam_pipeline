@@ -129,6 +129,7 @@ for x in lamp_files:
                     plotalot = False
                 Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
         except NameError:
+            #protects from the lamp_color not getting assigned in those if statements up there
             print "still no colors in files for like the 200th time."
             if offset_file== None:
                 plotalot= True

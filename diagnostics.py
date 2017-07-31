@@ -809,9 +809,7 @@ def diagnostic_plots_continuum(file_name, flags):
 def diagnostic_plots_extraction(file_name, flags):
     star_name = str(file_name)[11:-21]
     date = str(file_name)[-20:-10]
-    print "star_name: ", star_name
     pdf_name = 'extraction_plots_' + star_name + '.pdf'
-    print "pdf_name: " , pdf_name
     pp = PdfPages(pdf_name)
     pdfs.append(pdf_name)
 
@@ -1056,7 +1054,6 @@ def diagnostic_now():
     # Extraction
     for i in range(len(extraction_files)):
         file_name = str(extraction_files[i])
-        print "extraction_files[i] :", file_name
         diagnostic_plots_extraction(file_name, flags)
     
     ######------------------------------------------------------------------ #####

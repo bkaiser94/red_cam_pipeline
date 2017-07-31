@@ -570,6 +570,13 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         bining= float( lamp_header["PARAM18"] ) 
     except:
         bining= float( lamp_header["PG3_2"] ) 
+    length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
+    for attempt in length_headers:
+        try:
+            bining = float(img_head[attempt])
+            break
+        except KeyError:
+            pass
     # Get Pixel Numbers # 
     nx= np.size(lamp_spec)
     Pixels= bining*(np.arange(0,nx,1)+trim_offset)
