@@ -103,7 +103,7 @@ for x in spec_files:
 #=========================
 print '\n Beginning Wavelength Calibration'
 spec_files = sorted(glob('cftb*ms.fits'))
-lamp_files = sorted(glob('tFe*ms.fits')+glob("t*fe_*ms.fits")
+lamp_files = sorted(glob('tFe*ms.fits')+glob("t*fe_*ms.fits"))
 offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
 if len(offset_file) == 0:
     offset_file = None
