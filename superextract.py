@@ -606,6 +606,7 @@ def superExtract(*args, **kw):
 
         outlierVariances = (frame - modelData)**2/variance
         if outlierVariances.max() > csigma**2:
+            print "SHOULD BE CONTINUING newBadPixels"
             newBadPixels = True
             # Base our nreject-counting only on pixels within the spectral trace:
             maxRejectedValue = max(csigma**2, np.sort(outlierVariances[Qmask])[-nreject])
@@ -614,6 +615,7 @@ def superExtract(*args, **kw):
             numberRejected = len(worstOutliers[0])
             #pdb.set_trace()
         else:
+            print "WE SHOULD BE EXITING THE WHILE LOOP!"
             newBadPixels = False
             numberRejected = 0
         if verbose: print "Rejected %i pixels on this iteration " % numberRejected
@@ -625,6 +627,7 @@ def superExtract(*args, **kw):
         goodprof =  profile.transpose() * goodpixelmask #Horne: M*P
        
         for ii in range(nlam):
+            print "ii: ", ii
             thisrow_good = extractionApertures[ii]
             denom = (goodprof[ii, thisrow_good] * profile.transpose()[ii, thisrow_good] / variance0[ii, thisrow_good]).sum() #Horne: sum(M*P**2/V)
             if denom==0:
@@ -634,7 +637,7 @@ def superExtract(*args, **kw):
                 spectrum[ii] = (goodprof[ii, thisrow_good] * fixSkysubFrame[ii, thisrow_good] / variance0[ii, thisrow_good]).sum() / denom #Horne: sum(M*P*(D-S)/V) / sum(M*P**2/V)
                 varSpectrum[ii] = goodprof[ii, thisrow_good].sum() / denom #Horne: sum(M*P) / sum(M*P**2/V)
            
-
+    print "Loops exited. Finally."
     ret = baseObject()
     ret.spectrum = spectrum
     ret.raw = standardSpectrum
