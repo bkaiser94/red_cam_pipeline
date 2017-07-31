@@ -103,7 +103,7 @@ for x in spec_files:
 #=========================
 print '\n Beginning Wavelength Calibration'
 spec_files = sorted(glob('cftb*ms.fits'))
-lamp_files = sorted(glob('tFe*ms.fits')+glob("t*fe_*ms.fits"))
+lamp_files = sorted(glob('tFe*ms.fits')+glob("t*_fe*ms.fits"))
 offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
 if len(offset_file) == 0:
     offset_file = None
@@ -127,9 +127,13 @@ for x in lamp_files:
             else:
                 plotalot = False
             Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
-        elif offset_file== None:
+        else:
             print "still no colors in files for like the 200th time."
-            Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=True)
+            if offset_file== None:
+                plotalot= True
+            else:
+                plotalot= False
+            Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
 
 #=========================
 #Begin Continuum Normalization
