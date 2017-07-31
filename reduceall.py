@@ -120,14 +120,15 @@ for x in lamp_files:
         lamp_color = 'red'
     for y in spec_files:
         ###if (y[5:y.find('_930')] in x) and (y[y.find('_930'):y.find('_930')+8] in x):
-        if (lamp_color in y.lower()) and (y[5:y.find('_930')] in x):
-            print x, y, offset_file
-            if offset_file == None:
-                plotalot = True
-            else:
-                plotalot = False
-            Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
-        else:
+        try:
+            if (lamp_color in y.lower()) and (y[5:y.find('_930')] in x):
+                print x, y, offset_file
+                if offset_file == None:
+                    plotalot = True
+                else:
+                    plotalot = False
+                Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
+        except NameError:
             print "still no colors in files for like the 200th time."
             if offset_file== None:
                 plotalot= True
