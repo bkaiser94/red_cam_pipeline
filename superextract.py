@@ -301,6 +301,7 @@ def superExtract(*args, **kw):
     for ii in range(nlam):
         print "first ii: ", ii
         if goodpixelmask[ii, backgroundApertures[ii]].any():
+            print "good pixel mask let us in."
             fit,fit_chisq,fit_niter = polyfitr(xxx[ii,backgroundApertures[ii]], frame[ii, backgroundApertures[ii]], bord, bsigma, w=(goodpixelmask/variance)[ii, backgroundApertures[ii]], verbose=verbose-1,plotall=False,diag=True)
             #If you want to plot the fit to the background you can use this. Or set plotall=True above
             #if ii == 1100:
@@ -609,6 +610,7 @@ def superExtract(*args, **kw):
 
         outlierVariances = (frame - modelData)**2/variance
         #if outlierVariances.max() > csigma**2:
+        print "csigma: ", csigma
         if iter==0:
             print "SHOULD BE CONTINUING newBadPixels"
             newBadPixels = True
