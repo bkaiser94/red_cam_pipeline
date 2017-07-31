@@ -299,7 +299,6 @@ def superExtract(*args, **kw):
     #background_rms = np.zeros(nlam)
     #bkgrndmask = goodpixelmask
     for ii in range(nlam):
-        print "first ii: ", ii
         if goodpixelmask[ii, backgroundApertures[ii]].any():
             print "good pixel mask let us in."
             fit,fit_chisq,fit_niter = polyfitr(xxx[ii,backgroundApertures[ii]], frame[ii, backgroundApertures[ii]], bord, bsigma, w=(goodpixelmask/variance)[ii, backgroundApertures[ii]], verbose=verbose-1,plotall=False,diag=True)
@@ -636,7 +635,6 @@ def superExtract(*args, **kw):
         goodprof =  profile.transpose() * goodpixelmask #Horne: M*P
        
         for ii in range(nlam):
-            print "ii: ", ii
             thisrow_good = extractionApertures[ii]
             denom = (goodprof[ii, thisrow_good] * profile.transpose()[ii, thisrow_good] / variance0[ii, thisrow_good]).sum() #Horne: sum(M*P**2/V)
             if denom==0:
