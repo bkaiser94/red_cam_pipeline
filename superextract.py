@@ -316,6 +316,7 @@ def superExtract(*args, **kw):
             #plt.show()
             #Save values
             if ii == 1100:
+                print "ii == 1100; background_column_pixels should have values"
                 background_column_pixels = xxx[ii,:]
                 background_column_values = frame[ii,:]
                 background_fit_pixels = xxx[ii,backgroundApertures[ii]]
