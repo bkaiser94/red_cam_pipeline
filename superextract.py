@@ -615,9 +615,9 @@ def superExtract(*args, **kw):
             goodpixelmask[worstOutliers] = False
             numberRejected = len(worstOutliers[0])
             #pdb.set_trace()
-        newvar= False
-        if newvar:
-            print "executed"
+        #newvar= False
+        #if newvar:
+            #print "executed"
         else:
             print "WE SHOULD BE EXITING THE WHILE LOOP!"
             newBadPixels = False
