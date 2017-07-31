@@ -609,7 +609,6 @@ def superExtract(*args, **kw):
 
         outlierVariances = (frame - modelData)**2/variance
         #if outlierVariances.max() > csigma**2:
-        print "csigma: ", csigma
         if iter==0:
             print "SHOULD BE CONTINUING newBadPixels"
             newBadPixels = True
