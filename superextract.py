@@ -652,12 +652,17 @@ def superExtract(*args, **kw):
     ret.trace = trace
     ret.tracepos = xyfits
     ret.units = 'electrons'
-    ret.background = background_at_trace #background_at_trace 
-    ret.backgroundcolumnpixels = background_column_pixels
-    ret.backgroundcolumnvalues = background_column_values 
-    ret.backgroundfitpixels = background_fit_pixels
-    ret.backgroundfitvalues = background_fit_values
-    ret.backgroundfitpolynomial = background_fit_polynomial
+    try:
+        ret.background = background_at_trace #background_at_trace 
+        ret.backgroundcolumnpixels = background_column_pixels
+        ret.backgroundcolumnvalues = background_column_values 
+        ret.backgroundfitpixels = background_fit_pixels
+        ret.backgroundfitvalues = background_fit_values
+        ret.backgroundfitpolynomial = background_fit_polynomial
+    except UnboundLocalError:
+        print "no bad column detected"
+        print "should be continuing with our lives..."
+        pass
 
     ret.function_name = 'spec.superExtract'
 
