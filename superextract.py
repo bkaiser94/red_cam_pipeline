@@ -575,6 +575,7 @@ def superExtract(*args, **kw):
         if verbose: tic = time()
         profile = np.zeros((fitwidth, nlam), dtype=float)
         for i in range(fitwidth):
+            print "i :", i
             profile[i,:] = (Q[:,i,:] * Gsoln).sum(0)
 
         #Normalize the profile here
