@@ -660,15 +660,17 @@ def superExtract(*args, **kw):
         ret.backgroundfitvalues = background_fit_values
         ret.backgroundfitpolynomial = background_fit_polynomial
     except UnboundLocalError:
-        ret.background = np.nan #background_at_trace 
-        ret.backgroundcolumnpixels = np.nan
-        ret.backgroundcolumnvalues = np.nan
-        ret.backgroundfitpixels = np.nan
-        ret.backgroundfitvalues = np.nan
-        ret.backgroundfitpolynomial = np.nan
+        #changedthisvalue
+        stand_in_array = np.array([0., 0., 0.])
+        ret.background = stand_in_array#background_at_trace 
+        ret.backgroundcolumnpixels = stand_in_array
+        ret.backgroundcolumnvalues = stand_in_array
+        ret.backgroundfitpixels = stand_in_array
+        ret.backgroundfitvalues = stand_in_array
+        ret.backgroundfitpolynomial = stand_in_array
         print "no bad column detected"
         print "should be continuing with our lives..."
-        print "all of those background values for the diagnostics are np.nan"
+        print "all of those background values for the diagnostics are 0"
 
     ret.function_name = 'spec.superExtract'
 
