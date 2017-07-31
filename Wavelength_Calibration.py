@@ -566,14 +566,10 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
 
     # Find Bining # 
-    try:
-        bining= float( lamp_header["PARAM18"] ) 
-    except:
-        bining= float( lamp_header["PG3_2"] ) 
     length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
     for attempt in length_headers:
         try:
-            bining = float(img_head[attempt])
+            bining = float(lamp_header[attempt])
             break
         except KeyError:
             pass
