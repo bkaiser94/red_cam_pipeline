@@ -494,6 +494,7 @@ def superExtract(*args, **kw):
     iter = -1
     if verbose: print "Looking for bad pixel outliers."
     while newBadPixels:
+        print "new newBadPixels iteration beginning"
         iter += 1
         if verbose: print "Beginning iteration %i" % iter
 
