@@ -551,11 +551,13 @@ def remove_edge_calibrations(peak_w, Wavelen,coord_x, edgebuffer= 10):
     """
     good_points= []
     good_waves = []
+    j= 0
     for w in peak_w:
         i= Wavelen.index(w) # index of peak_w with wavelengths list
         if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer))):
                 good_points.append(w)
-                good_waves.append(coord_x[i])
+                good_waves.append(coord_x[j])
+        j+=1
     return good_points, good_waves
 
 #  Get Lamps # ==============================================================
