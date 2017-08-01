@@ -237,6 +237,7 @@ def PeakFind(data):
 # ===========================================================================
     
 def fit_Gauss(X,Y):
+    print "Gauss Y: ", Y
     a0= np.max(Y)/2.0
     c0= X[ np.argmax(Y) ]
     w0= 3.0*0.42
@@ -252,6 +253,7 @@ def find_peak_centers(peak_w, Wavelen, Counts):
         i= Wavelen.index(w) # index of peak_w with wavelengths list
         fit_data_w= Wavelen[i-9:i+9]
         fit_data_c= Counts[i-9:i+9]
+        print "fit_data_c: ", fit_data_c
         amp, cent, width, b= fit_Gauss(fit_data_w, fit_data_c)
         list_centers.append(cent)
         ## Plot the gaussian fit 
@@ -731,7 +733,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             peak_x= []
             for i in range(0,n_pnt):
                 x= find_near(coord_x[i], Wavelengths)
-                print "Wavelengths: ", Wavelengths
+                #print "Wavelengths: ", Wavelengths
                 print "searched coord: ", coord_x[i]
                 print "found coord: ", x
                 peak_x.append(x)
