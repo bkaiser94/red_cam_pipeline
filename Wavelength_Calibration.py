@@ -545,16 +545,18 @@ def WaveShift(specname,zzceti,plotall):
 # Code ====================================================================== 
 # ===========================================================================
 
-def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
+def remove_edge_calibrations(peak_w, Wavelen,coord_x, edgebuffer= 10):
     """
     Remove the peak wavelength values that are too close to the edges of the lamp spectrum so the gaussian fit can proceed without crashing in the future.
     """
     good_points= []
+    good_waves = []
     for w in peak_w:
         i= Wavelen.index(w) # index of peak_w with wavelengths list
         if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer))):
                 good_points.append(w)
-    return good_points
+                good_waves.append(coord_x[i])
+    return good_points, good_waves
 
 #  Get Lamps # ==============================================================
 
@@ -750,16 +752,16 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 print "searched coord: ", coord_x[i]
                 print "found coord: ", x
                 peak_x.append(x)
-            peak_x= remove_edge_calibrations(peak_x, Wavelengths)
+            peak_x, known_waves= remove_edge_calibrations(peak_x, Wavelengths, coord_x)
             centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
             centers_in_wave= [w-offset for w in centers_in_wave]
             centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
     
-            known_waves= []
-            for i in range(0,n_pnt):
-                x= find_near(coord_x[i], line_list[1])
-                known_waves.append(x)
-            known_waves= remove_edge_calibrations(known_waves, line_list[1])
+            #known_waves= []
+            #for i in range(0,n_pnt):
+                #x= find_near(coord_x[i], line_list[1])
+                #known_waves.append(x)
+            #known_waves= remove_edge_calibrations(known_waves, line_list[1])
 
             #Create array to save data for diagnostic purposes
             global savearray, n_fr, n_fd, n_zPnt
