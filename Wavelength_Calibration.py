@@ -727,6 +727,8 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             peak_x= []
             for i in range(0,n_pnt):
                 x= find_near(coord_x[i], Wavelengths)
+                print "searched coord: ", coord_x[i]
+                print "found coord: ", x
                 peak_x.append(x)
             centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
             centers_in_wave= [w-offset for w in centers_in_wave]
