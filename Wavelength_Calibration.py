@@ -546,6 +546,9 @@ def WaveShift(specname,zzceti,plotall):
 # ===========================================================================
 
 def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
+    """
+    Remove the peak wavelength values that are too close to the edges of the lamp spectrum so the gaussian fit can proceed without crashing in the future.
+    """
     good_points= []
     for w in peak_w:
         i= Wavelen.index(w) # index of peak_w with wavelengths list
@@ -756,6 +759,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             for i in range(0,n_pnt):
                 x= find_near(coord_x[i], line_list[1])
                 known_waves.append(x)
+            known_waves= remove_edge_calibrations(known_waves, line_list[1])
 
             #Create array to save data for diagnostic purposes
             global savearray, n_fr, n_fd, n_zPnt
