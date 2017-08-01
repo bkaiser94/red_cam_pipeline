@@ -73,7 +73,7 @@ def readspectrum(specfile):
     
     trim_sec= spec[0].header["CCDSEC"]
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
-   length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
+    length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
     for attempt in length_headers:
         try:
             bining = float(lamp_header[attempt])
