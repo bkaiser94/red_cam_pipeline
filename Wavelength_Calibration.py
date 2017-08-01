@@ -249,6 +249,7 @@ def fit_Gauss(X,Y):
 
 def find_peak_centers(peak_w, Wavelen, Counts):
     list_centers= []
+    print "Counts: ", Counts
     for w in peak_w:
         i= Wavelen.index(w) # index of peak_w with wavelengths list
         fit_data_w= Wavelen[i-9:i+9]
@@ -544,6 +545,14 @@ def WaveShift(specname,zzceti,plotall):
 # Code ====================================================================== 
 # ===========================================================================
 
+#def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
+    #good_points= []
+    #new_waves= []
+    #for w in peak_w:
+        #i= Wavelen.index(w) # index of peak_w with wavelengths list
+        #if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer)):
+                #good_points.append(w)
+                #new_waves.append(
 
 #  Get Lamps # ==============================================================
 
@@ -731,6 +740,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             n_pnt = len(coord_x)
             
             peak_x= []
+            new_waves= []
             for i in range(0,n_pnt):
                 x= find_near(coord_x[i], Wavelengths)
                 #print "Wavelengths: ", Wavelengths
