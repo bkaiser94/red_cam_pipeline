@@ -549,7 +549,7 @@ def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
     good_points= []
     for w in peak_w:
         i= Wavelen.index(w) # index of peak_w with wavelengths list
-        if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer)):
+        if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer))):
                 good_points.append(w)
     return good_points
 
