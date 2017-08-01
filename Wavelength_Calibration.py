@@ -545,14 +545,13 @@ def WaveShift(specname,zzceti,plotall):
 # Code ====================================================================== 
 # ===========================================================================
 
-#def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
-    #good_points= []
-    #new_waves= []
-    #for w in peak_w:
-        #i= Wavelen.index(w) # index of peak_w with wavelengths list
-        #if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer)):
-                #good_points.append(w)
-                #new_waves.append(
+def remove_edge_calibrations(peak_w, Wavelen, edgebuffer= 10):
+    good_points= []
+    for w in peak_w:
+        i= Wavelen.index(w) # index of peak_w with wavelengths list
+        if ((i >= edgebuffer) & (i <= (len(Wavelen)-edgebuffer)):
+                good_points.append(w)
+    return good_points
 
 #  Get Lamps # ==============================================================
 
@@ -569,6 +568,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     else:
         print ("\nDont know which data to unpack.")
         print ("Check the array dimensions\n")
+    print "lamp_spec.shape: ", lamp_spec.shape
         
         
     # plt.figure(1)
@@ -747,6 +747,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 print "searched coord: ", coord_x[i]
                 print "found coord: ", x
                 peak_x.append(x)
+            peak_x= remove_edge_calibrations(peak_x, Wavelengths)
             centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
             centers_in_wave= [w-offset for w in centers_in_wave]
             centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
