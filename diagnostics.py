@@ -814,6 +814,7 @@ def diagnostic_plots_extraction(file_name, flags):
     pdfs.append(pdf_name)
 
     arr = np.genfromtxt(file_name, dtype=None, delimiter=' ')
+    print "arr.shape: ", arr.shape
 
     meas_FWHM, pix_FWHM, fit_FWHM, all_pix = [],[],[],[]
     prof_pix, prof_pos, fit_prof_pos = [],[],[]
@@ -834,6 +835,7 @@ def diagnostic_plots_extraction(file_name, flags):
         pixel_back_fit.append(arr[m][9])
         val_fit.append(arr[m][10])
         poly_fit_back.append(arr[m][11])
+    print "val_1200: ", val_1200
 
     meas_FWHM = np.array(meas_FWHM)
     meas_FWHM = np.trim_zeros(meas_FWHM, 'b')
@@ -871,6 +873,7 @@ def diagnostic_plots_extraction(file_name, flags):
     poly_fit_back = np.array(poly_fit_back)  
     poly_fit_back = np.trim_zeros(poly_fit_back, 'b')
     
+    print "post-trim val_1200: ", val_1200
     plt.figure()
     plt.scatter(pix_FWHM,meas_FWHM)
     plt.plot(np.arange(len(fit_FWHM)),fit_FWHM)
@@ -988,6 +991,7 @@ def diagnostic_now():
     wave_fit_tol = 0.15
 
     pdfs = glob('diagnostics_plots.pdf')
+    print "pdfs: ", pdfs
     for f in pdfs:
         os.remove(f)
 
@@ -1009,6 +1013,12 @@ def diagnostic_now():
     model_cal_files = glob('continuum_normalization*.txt')
     extraction_files = glob('extraction_*_*.txt')
     spectra_files = glob('flux_fits*.txt')
+    
+    print "extraction_files: ", extraction_files
+    print "fwhm_files: ", fwhm_files
+    print "wave_cal_files: ", wave_cal_files
+    print "spectra_files: ", spectra_files
+    print "cal_files: ", cal_files
 
     ##### ------------------------------------------------------------------ #####
     # Calibrations
@@ -1054,6 +1064,7 @@ def diagnostic_now():
     # Extraction
     for i in range(len(extraction_files)):
         file_name = str(extraction_files[i])
+        print "(extraction) file_name: ", file_name
         diagnostic_plots_extraction(file_name, flags)
     
     ######------------------------------------------------------------------ #####
