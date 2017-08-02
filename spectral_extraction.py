@@ -77,7 +77,19 @@ def SigClip(data_set, lo_sig, hi_sig):
 def line(x,m,b):
     y = m*x + b
     return y
+
+def pointslope(x, x1, y1, m):
+    return m*(x-x1) +y1
 #===========================================
+def onclick(event):
+    ix, iy = event.xdata,event.ydata
+    ax.axhline(y=iy,color='k',linewidth='2')
+    fig.canvas.draw()
+    return ix, iy
+
+def onclick2(event):
+    ix, iy = event.xdata,event.ydata
+    
 
 
 #===========================================
@@ -166,12 +178,14 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     
     #Fit a column of the 2D image to determine the FWHM in pixels
-    print "should crash here since we're in spectral_extraction.py and it's looking for blue and red in filename then using the thing again"
+    #print "should crash here since we're in spectral_extraction.py and it's looking for blue and red in filename then using the thing again"
     if 'blue' in specfile.lower():
         #Average over 5 rows to deal with any remaining cosmic rays
         forfit = np.mean(np.array([data[1198,:],data[1199,:],data[1200,:],data[1201,:],data[1202,:]]),axis=0)
     elif 'red' in specfile.lower():
         forfit = np.mean(np.array([data[998,:],data[999,:],data[1000,:],data[1001,:],data[1002,:]]),axis=0)
+    else:
+        forfit = np.mean(np.array([data[1198,:],data[1199,:],data[1200,:],data[1201,:],data[1202,:]]),axis=0)
     
 
     guess = np.zeros(4)
@@ -191,7 +205,18 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     
     #Check to make sure background region does not go within 10 pixels of edge
-    background_radii = [35,60]
+    if cautious == False:
+        background_radii = [35,60]
+    elif cautious == True:
+        coordx= []
+        coordy=[]
+        for goround in range(0,2):
+            cidx, cidy = fig.canvas.mpl_connect('button_press_event', onclick)
+            coordx.append(cidx)
+            coordy.append(cidy)
+        slope= (coordy[1]- coordy[0])/(coordx[1]-coordx[0])
+        
+            
     #First check this against the bottom
     if fitparams.params[2] - background_radii[1] < 10.:
         background_radii[1] = fitparams.params[2] - 10.

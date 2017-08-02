@@ -25,11 +25,14 @@ import diagnostics
 from glob import glob
 
 
-global red_cam_id, blue_cam_id,camera_header
+global red_cam_id, blue_cam_id,camera_header, cautious
 red_cam_id = 'Red' #'Instrument Model' in header of the PG comment
 blue_cam_id = 'Blue'
 camera_header= 'INSTCONF' #yes, this is the header that contains the indication of which camera is being used; it is not the 'camera_header'
 
+cautious = False #basically will be used in the future to determine if we should have command line prompts as we go through or not with regards to refitting or checking the background values and whatnot.
+if cautious:
+    print "cautious ==True, so you're gonna have to be paying attention."
 #=========================
 #Begin Fits Reduction
 #=========================
