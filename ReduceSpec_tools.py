@@ -529,25 +529,39 @@ def Norm_Flat_Poly( flat , order):
     #    order= raw_input("Fit Order?>>>")
     print "Fit Order: %s" % order
     #See in littrow ghost file already exists for blue files
-    if flat.lower().__contains__("blue")== True:
-        littrow_exist = glob('littrow_ghost.txt')
-        if len(littrow_exist) == 1:
-            print 'littrow_ghost.txt file already exists. Using that for mask.'
-            littrow_ghost = np.genfromtxt('littrow_ghost.txt')
-            litt_low = int(littrow_ghost[0])
-            litt_hi = int(littrow_ghost[1])
-        else:
-            print 'Finding and saving littrow ghost location'
-            littrow_ghost = find_littrow(flat)
-            litt_low = int(littrow_ghost[0])
-            litt_hi = int(littrow_ghost[1])
+    #if flat.lower().__contains__("blue")== True:
+        #littrow_exist = glob('littrow_ghost.txt')
+        #if len(littrow_exist) == 1:
+            #print 'littrow_ghost.txt file already exists. Using that for mask.'
+            #littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+            #litt_low = int(littrow_ghost[0])
+            #litt_hi = int(littrow_ghost[1])
+        #else:
+            #print 'Finding and saving littrow ghost location'
+            #littrow_ghost = find_littrow(flat)
+            #litt_low = int(littrow_ghost[0])
+            #litt_hi = int(littrow_ghost[1])
+    #changedthis both above and below. This ^^^^ was commented, and this \/ \/ was removed from the if statement about colors.
+    littrow_exist = glob('littrow_ghost.txt')
+    if len(littrow_exist) == 1:
+        print 'littrow_ghost.txt file already exists. Using that for mask.'
+        littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+        litt_low = int(littrow_ghost[0])
+        litt_hi = int(littrow_ghost[1])
     else:
-        #These are dummy values so we can concatenate below 
-        litt_low = 100
-        litt_hi = 99
+        print 'Finding and saving littrow ghost location'
+        littrow_ghost = find_littrow(flat)
+        litt_low = int(littrow_ghost[0])
+        litt_hi = int(littrow_ghost[1])
+    #changedthis \/ \/ Commented out the else statement
+    #else:
+        ##These are dummy values so we can concatenate below 
+        #litt_low = 100
+        #litt_hi = 99
     # Read Flat and Average Center Rows # 
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
+    print "This should be " + str(2055-10) +" if this flat was improperly trimmed."
     print "flat_data.shape: ", flat_data.shape
     if len(flat_data.shape) == 3:
         fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
