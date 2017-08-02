@@ -25,13 +25,15 @@ import diagnostics
 from glob import glob
 
 
+global red_cam_id, blue_cam_id,camera_header
+red_cam_id = 'Red' #'Instrument Model' in header of the PG comment
+blue_cam_id = 'Blue'
+camera_header= 'INSTCONF' #yes, this is the header that contains the indication of which camera is being used; it is not the 'camera_header'
 
 #=========================
 #Begin Fits Reduction
 #=========================
-
 ReduceSpec.reduce_now(['script_name','listZero','listFlat','listSpec','listFe'])
-
 to_flux= False
 
 #========================
@@ -135,7 +137,7 @@ for x in lamp_files:
                 plotalot= True
             else:
                 plotalot= False
-            Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
+            Wavelength_Calibration.calibrate_now(x,y,'no','no',offset_file,plotall=plotalot) #changedthisvalue The 4th arg 'no' is whether or not we're looking at a zzceti, and the 'no' setting is kind of a roll of the dice.
 
 #=========================
 #Begin Continuum Normalization
@@ -180,7 +182,7 @@ fluxlist = None
 if to_flux:
     flux_calibration.flux_calibrate_now(stdlist,fluxlist,continuum_files,extinct_correct=True,masterresp=True)
 if not to_flux:
-    print "Not Flux calibrating since to_flux == :" , to_flux
+    print "Not Flux calibrating since to_flux: " , to_flux
 
 #=========================
 #Begin Flux Calibration
