@@ -50,7 +50,7 @@ from superextract_tools import lampextract
 from ReduceSpec_tools import gauss, fitgauss
 from pylab import *
 
-
+global cautious
 #===========================================
 def SigClip(data_set, lo_sig, hi_sig):
     # Sigma Cliping Function  #
