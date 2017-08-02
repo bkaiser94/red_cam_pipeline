@@ -166,6 +166,7 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     
     #Fit a column of the 2D image to determine the FWHM in pixels
+    print "should crash here since we're in spectral_extraction.py and it's looking for blue and red in filename then using the thing again"
     if 'blue' in specfile.lower():
         #Average over 5 rows to deal with any remaining cosmic rays
         forfit = np.mean(np.array([data[1198,:],data[1199,:],data[1200,:],data[1201,:],data[1202,:]]),axis=0)
