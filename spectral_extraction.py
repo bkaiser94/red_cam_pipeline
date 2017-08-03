@@ -172,6 +172,8 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     else:
         fwhm_fit = np.load(FWHMfile)
         allpixel = np.arange(0,len(data[:,100]),1)
+        print "diagnostics.shape: ", diagnostics.shape
+        print "len(fwhm_fit): ", len(fwhm_fit)
         diagnostics[0:len(fwhm_fit),2] = fwhm_fit
         diagnostics[0:len(allpixel),3] = allpixel
     
