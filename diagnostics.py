@@ -12,6 +12,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileMerger
 import pandas as pd
+import config
 
 ##### ------------------------------------------------------------------ #####
 

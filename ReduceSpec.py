@@ -32,6 +32,7 @@ ReduceSpec.py will automatically sort between Blue and Red ZZ Ceti setups, and w
 import numpy as np
 import ReduceSpec_tools as rt
 import warnings
+import config
 
 # ===========================================================================
 # Code to Reduce Spectrum ===================================================

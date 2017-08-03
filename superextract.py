@@ -143,6 +143,7 @@ def superExtract(*args, **kw):
     from scipy import signal
     from pylab import *
     from superextract_tools import bfixpix, traceorders, polyfitr, baseObject,message
+    import config
 
 
 

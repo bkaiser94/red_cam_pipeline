@@ -42,6 +42,7 @@ from scipy.optimize import curve_fit, fsolve
 import mpfit
 import datetime
 import os
+import config
 
 # ==========================================================================
 # Data # ===================================================================

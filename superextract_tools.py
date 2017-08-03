@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize as optimize
 import pdb
 from pylab import plot, legend, title, figure, arange, cm
-
+import config
 
 def imshow(data, x=[], y=[], aspect='auto', interpolation='nearest', cmap=None, vmin=[], vmax=[]):
     """ Version of pylab's IMSHOW with my own defaults:

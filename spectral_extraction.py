@@ -49,8 +49,8 @@ import superextract
 from superextract_tools import lampextract, imshow
 from ReduceSpec_tools import gauss, fitgauss
 from pylab import *
+import config
 
-global cautious
 #===========================================
 def SigClip(data_set, lo_sig, hi_sig):
     # Sigma Cliping Function  #
@@ -99,7 +99,6 @@ def onclick2(event, slope):
 def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     #Open file and read gain and readnoise
-    global cautious
     datalist = fits.open(specfile)
     data = datalist[0].data
     data = np.transpose(data[0,:,:])
@@ -210,9 +209,9 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     
     #Check to make sure background region does not go within 10 pixels of edge
-    if cautious == False:
+    if config.cautious == False:
         background_radii = [35,60]
-    elif cautious == True:
+    elif config.cautious == True:
         coordx= []
         coordy=[]
         for goround in range(0,2):
