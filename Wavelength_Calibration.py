@@ -400,8 +400,7 @@ def WaveShift(specname,zzceti,plotall):
     
     trim_sec= spec_header["CCDSEC"]
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
-    length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
-    for attempt in length_headers:
+    for attempt in config.binning_headers:
         try:
             bining = float(lamp_header[attempt])
             break
@@ -587,8 +586,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
 
     # Find Bining # 
-    length_headers= ['PARAM18', 'PG3_2', 'PG5_9']
-    for attempt in length_headers:
+    for attempt in config.binning_headers:
         try:
             bining = float(lamp_header[attempt])
             break

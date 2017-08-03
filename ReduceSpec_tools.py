@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import cosmics
 from glob import glob
 from astropy.convolution import convolve, convolve_fft, Box2DKernel
+import config
 
 # ===========================================================================
 # Lesser Functions Used by Main Functions ===================================
@@ -334,8 +335,7 @@ def Trim_Spec(img):
     img_head= fits.getheader(img) 
     img_data= fits.getdata(img)    
     Fix_Header(img_head)
-    length_headers= ['PARAM17', 'PG3_1', 'PG5_10']
-    for attempt in length_headers:
+    for attempt in config.length_headers:
         try:
             length = float(img_head[attempt])
             break

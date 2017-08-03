@@ -209,9 +209,9 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     
     
     #Check to make sure background region does not go within 10 pixels of edge
-    if config.cautious == False:
+    if not config.cautious:
         background_radii = [35,60]
-    elif config.cautious == True:
+    elif config.cautious:
         coordx= []
         coordy=[]
         for goround in range(0,2):
