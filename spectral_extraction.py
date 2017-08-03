@@ -83,13 +83,13 @@ def pointslope(x, x1, y1, m):
 #===========================================
 def onclick(event):
     ix, iy = event.xdata,event.ydata
-    plt.plot
-    fig.canvas.draw()
+    #plt.plot
+    #fig.canvas.draw()
     return ix, iy
 
 def onclick2(event, slope):
     ix, iy = event.xdata,event.ydata
-    plt.plot(
+    #plt.plot(
     
 
 
@@ -97,8 +97,9 @@ def onclick2(event, slope):
 #Primary Program
 #===========================================
 def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
-    global cautious
+    
     #Open file and read gain and readnoise
+    global cautious
     datalist = fits.open(specfile)
     data = datalist[0].data
     data = np.transpose(data[0,:,:])
