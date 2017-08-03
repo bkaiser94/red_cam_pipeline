@@ -46,7 +46,7 @@ from scipy.optimize import curve_fit
 
 import spectools as st
 import superextract
-from superextract_tools import lampextract
+from superextract_tools import lampextract, imshow
 from ReduceSpec_tools import gauss, fitgauss
 from pylab import *
 
@@ -83,12 +83,13 @@ def pointslope(x, x1, y1, m):
 #===========================================
 def onclick(event):
     ix, iy = event.xdata,event.ydata
-    ax.axhline(y=iy,color='k',linewidth='2')
+    plt.plot
     fig.canvas.draw()
     return ix, iy
 
-def onclick2(event):
+def onclick2(event, slope):
     ix, iy = event.xdata,event.ydata
+    plt.plot(
     
 
 
@@ -96,6 +97,7 @@ def onclick2(event):
 #Primary Program
 #===========================================
 def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
+    global cautious
     #Open file and read gain and readnoise
     datalist = fits.open(specfile)
     data = datalist[0].data
@@ -215,6 +217,7 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
             coordx.append(cidx)
             coordy.append(cidy)
         slope= (coordy[1]- coordy[0])/(coordx[1]-coordx[0])
+        
         
             
     #First check this against the bottom
