@@ -356,7 +356,7 @@ def Trim_Spec(img):
             print "Unable to locate " + config.camera_header + " in the headers of " + img
             print "We're going to try blue camera indices."
             cam_id = config.blue_cam_id
-        if cam_id == config.blue_cam_id
+        if cam_id == config.blue_cam_id:
             try:
                 img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
@@ -364,7 +364,7 @@ def Trim_Spec(img):
             except IndexError:
                 print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
                 cam_id = config.red_cam_id
-        elif cam_id == config.red_cam_id
+        elif cam_id == config.red_cam_id:
             img_head.set(('CCDSEC', '[45:2055,1:200]', 'Original Pixel Indices') , useblanks= True, bottom =True)
             print "excepted trimming: ", img_head['CCDSEC']
             NewHdu = fits.PrimaryHDU(data= img_data[1:200, 45:2055], header= img_head) #works for red camera
