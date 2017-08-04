@@ -341,12 +341,6 @@ def Trim_Spec(img):
             break
         except KeyError:
             pass
-    #try:
-        #length = float(img_head['PARAM17'])
-    #except KeyError:
-        #length = float(img_head['PG3_1'])
-    #else:
-        #length = float(img_head['PG5_10']) #Red camera header value
     if length == 2071.:
         #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
                    #useblanks= True, bottom= True )
@@ -358,16 +352,16 @@ def Trim_Spec(img):
             cam_id = config.blue_cam_id
         if cam_id == config.blue_cam_id:
             try:
-                img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
-                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head) #works for blue camera
+                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
             except IndexError:
                 print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
                 cam_id = config.red_cam_id
         elif cam_id == config.red_cam_id:
-            img_head.set(('CCDSEC', '[45:2055,1:200]', 'Original Pixel Indices') , useblanks= True, bottom =True)
+            img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
             print "excepted trimming: ", img_head['CCDSEC']
-            NewHdu = fits.PrimaryHDU(data= img_data[1:200, 45:2055], header= img_head) #works for red camera
+            NewHdu = fits.PrimaryHDU(data= img_data[1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
         print "writing trimmed image to " +new_file_name
@@ -508,23 +502,29 @@ def Bias_Subtract( img_list, zero_img ):
 # ===========================================================================
 
 def Norm_Flat_Avg( flat ):
-    # Takes average value of all the pixels and devides the entier flat by 
-    # that value using numpy. 
+    """
+    Takes average value of all the pixels and devides the entier flat by 
+    that value using numpy. 
+    """
     print "\n====================\n" 
     print 'Normalizing %s By Dividing Each Pixel By Average Value:' % ( flat )
     # Read Data, take average, and divide # 
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
+    flat_head = fits.getheader(flat)
+    Fix_Header(flat_head)
     # Calculate Average of the flat excluding bottom row and overscan regions # 
-    avg_flat = np.average( flat_data[:, 1:200, 9:2055] )
+    if flat_head[config.camera_header] == config.blue_cam_id:
+        avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
+    elif flat_head[config.camera_header]== config.red_cam_id:
+         avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
     norm_flat_data = np.divide( flat_data, float(avg_flat) )
     print 'Average Value: %s\n' % avg_flat
     # Copy Header, write changes, and write file #
-    hdu = fits.getheader(flat)
-    Fix_Header(hdu)
+    
     hdu.append( ('NORMFLAT', avg_flat,'Average Used to Normalize the Flat.'), 
                useblanks= True, bottom= True )
-    NewHdu = fits.PrimaryHDU(data= norm_flat_data, header= hdu)
+    NewHdu = fits.PrimaryHDU(data= norm_flat_data, header= flat_head)
     norm_flat_name= check_file_exist('n'+flat)
     NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
     
@@ -616,8 +616,14 @@ def Norm_Flat_Poly( flat , order):
         fit_data= np.median(flat_data[95:105], axis=0) # Median of center Rows ###
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions and littrow ghost. #
-    lo= 10;
-    hi= 2055;
+    hdu = fits.getheader(flat)
+    Fix_Header(hdu)
+    if hdu[config.camera_header] == config.blue_cam_id:
+        lo= config.blue_cam_lotrim
+        hi= config.blue_cam_hightrim
+    elif hdu[config.camera_header] == config.red_cam_id:
+        lo= config.red_cam_lotrim
+        hi= config.red_cam_hightrim
     xvals = np.concatenate((X[lo:litt_low],X[litt_hi:hi]))
     yvals = np.concatenate((fit_data[lo:litt_low],fit_data[litt_hi:hi]))
     # Calculate Fit # 
@@ -653,8 +659,7 @@ def Norm_Flat_Poly( flat , order):
                 i= i+1  
             
     # Copy Header, write changes, and write file #
-    hdu = fits.getheader(flat)
-    Fix_Header(hdu)
+    
     hdu.append( ('NORMFLAT ', order,'Flat Polynomial Fit Order'), 
                useblanks= True, bottom= True )
     for i in range(0,len(coeff)):
@@ -732,8 +737,11 @@ def Norm_Flat_Boxcar( flat ):
 
     if flat.lower().__contains__("blue"):
         diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
-    if flat.lower().__contains__("red"):
+    elif flat.lower().__contains__("red"):
         diagnostic[0:len(image_divided[100,:]),15] = image_divided[100,:]
+    else:
+        print "Assuming we should put this colorless flat in blue spot in the diagnostics,\nwhich is column index 14."
+        diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
 
 
     # Copy Header, write changes, and write file #
@@ -1063,11 +1071,17 @@ def find_littrow(flat):
     #Do a normalization first.
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
+    print "flat_data.shape: ", flat_data.shape
+    flat_head= fits.getheader(flat)
     fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions. #
-    lo= 10; #10
-    hi= 2055; #2055
+    if flat_head[config.camera_header] == config.blue_cam_id:
+        lo= config.blue_cam_lotrim #10 before. Even though it's 9 at other points for whatever reason...
+        hi= config.blue_cam_hightrim; #2055
+    elif flat_head[config.camera_header] == config.red_cam_id:
+        lo= config.red_cam_lotrim
+        hi= config.red_cam_hightrim; #2055
     coeff = np.polyfit(X[lo:hi],fit_data[lo:hi],4)
     profile = np.poly1d(coeff)(X)
     #plt.clf()
@@ -1244,6 +1258,10 @@ def imcombine(im_list, output_name, method,
             elif im_list[0].lower().__contains__("red"):
                 diagnostic[0:len(avgarr),9] = avgarr
                 diagnostic[0:len(stdarr),10] = stdarr
+            else:
+                print "Diagnostic 5&6 are gonna be put where blue would go if we had colors here. This outside the pipeline reduction is starting to get questionable..."
+                diagnostic[0:len(avgarr),5] = avgarr
+                diagnostic[0:len(stdarr),6] = stdarr
     except:
         pass
     ## Combine the images acording to input "method" using SigmaClip() above ## 

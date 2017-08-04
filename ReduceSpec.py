@@ -115,7 +115,7 @@ def reduce_now(args):
     while i < nf:
         b_flat_lists.append( rt.Bias_Subtract(flat_lists[i], comb_zero ) )
         i= i+1
-    
+        
     # Combine Bias Subtracted Flats # 
     i= 0
     comb_flat= []
@@ -147,13 +147,12 @@ def reduce_now(args):
     while i < nf:
         if 'blue' in tcomb_flat[i].lower():
             nb_flat.append(rt.Norm_Flat_Boxcar_Multiples(tcomb_flat[i],adc_stat=adc_status))
+        elif 'quartz' in tcomb_flat[i].lower():
+            nb_flat.append( rt.Norm_Flat_Poly(tcomb_flat[i],4.) )
         else:
-            if 'quartz' in tcomb_flat[i].lower():
-                nb_flat.append( rt.Norm_Flat_Poly(tcomb_flat[i],4.) )
-            else:
-                flat_temp = []
-                flat_temp.append( rt.Norm_Flat_Poly(tcomb_flat[i],3.) )
-                nb_flat.append( rt.Norm_Flat_Boxcar(flat_temp[0]))
+            flat_temp = []
+            flat_temp.append( rt.Norm_Flat_Poly(tcomb_flat[i],3.) )
+            nb_flat.append( rt.Norm_Flat_Boxcar(flat_temp[0]))
         #nb_flat.append( rt.Norm_Flat_Poly(tcomb_flat[i]) ) # (divide by average of counts)
         #nb_flat.append(rt.Norm_Flat_Boxcar(nb_flat1[i]))
         #nb_flat.append(rt.Norm_Flat_Boxcar_Multiples(tcomb_flat[i]))
