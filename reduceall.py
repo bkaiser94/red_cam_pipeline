@@ -25,10 +25,7 @@ import diagnostics
 from glob import glob
 import config
 
-global red_cam_id, blue_cam_id,camera_header
-red_cam_id = 'Red' #'Instrument Model' in header of the PG comment
-blue_cam_id = 'Blue'
-camera_header= 'INSTCONF' #yes, this is the header that contains the indication of which camera is being used; it is not the 'camera_header'
+
 
 if config.cautious:
     print "config.cautious ==True, so you're gonna have to be paying attention."

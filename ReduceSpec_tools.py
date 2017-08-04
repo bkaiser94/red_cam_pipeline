@@ -357,11 +357,13 @@ def Trim_Spec(img):
             NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head) #works for blue camera
         except IndexError:
             img_head['CCDSEC']=  '[45:2055,1:200]' 
+            print "excepted trimming: ", img_head['CCDSEC']
             NewHdu = fits.PrimaryHDU(data= img_data[1:200, 45:2055], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
         return (new_file_name)
     elif length == 4142.:
+        print "pixel length interpreted as 4142"
         img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
         NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)

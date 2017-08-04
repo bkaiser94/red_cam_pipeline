@@ -399,6 +399,7 @@ def WaveShift(specname,zzceti,plotall):
     theta= float( spec_header["CAM_TARG"] )
     
     trim_sec= spec_header["CCDSEC"]
+    print "WaveShift trimming: ", trim_sec
     trim_offset= float( trim_sec[1:len(trim_sec)-1].split(':')[0] )-1
     for attempt in config.binning_headers:
         try:
