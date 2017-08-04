@@ -366,7 +366,8 @@ def Trim_Spec(img):
             else:
                 img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
                 print "excepted trimming: ", img_head['CCDSEC']
-                NewHdu = fits.PrimaryHDU(data= img_data[1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+                #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
+                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
         print "writing trimmed image to " +new_file_name
