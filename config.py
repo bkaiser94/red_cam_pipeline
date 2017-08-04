@@ -7,3 +7,6 @@ binning_headers= ['PARAM18', 'PG3_2', 'PG5_9'] # "" serial_binning headers
 red_cam_id = 'Red' 
 blue_cam_id = 'Blue'
 camera_header= 'INSTCONF' #yes, this is the header that contains the indication of which camera is being used; it is not the 'camera_header'
+affirmatives= ['yes', 'y', 'true']
+negatives= ['no', 'n', 'false']
+

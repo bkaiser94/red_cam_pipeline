@@ -350,17 +350,27 @@ def Trim_Spec(img):
     if length == 2071.:
         #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
                    #useblanks= True, bottom= True )
-        
         try:
-            img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+            cam_id= img_head[config.camera_header]
+        except KeyError:
+            print "Unable to locate " + config.camera_header + " in the headers of " + img
+            print "We're going to try blue camera indices."
+            cam_id = config.blue_cam_id
+        if cam_id == config.blue_cam_id
+            try:
+                img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
-            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head) #works for blue camera
-        except IndexError:
-            img_head['CCDSEC']=  '[45:2055,1:200]' 
+                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 9:2055], header= img_head) #works for blue camera
+            except IndexError:
+                print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
+                cam_id = config.red_cam_id
+        elif cam_id == config.red_cam_id
+            img_head.set(('CCDSEC', '[45:2055,1:200]', 'Original Pixel Indices') , useblanks= True, bottom =True)
             print "excepted trimming: ", img_head['CCDSEC']
             NewHdu = fits.PrimaryHDU(data= img_data[1:200, 45:2055], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        print "writing trimmed image to " +new_file_name
         return (new_file_name)
     elif length == 4142.:
         print "pixel length interpreted as 4142"
@@ -397,14 +407,16 @@ def Add_Scale (img_block):
     return img_block, Sval
     
 def Mult_Scale (img_block,index):
-    # Function to be called by Imcombine. 
-    # The function is meant to multiplicative sclae a set of images, (flats in particular). 
-    # The input is a numpy block of pixel values (see imcombine). 
-    # The function calculates the average number of 
-    # counts of the region [25:75, 1700:1800] of the first image. 
-    # Then scales the rest of the images by multiplying by the ratio between the 
-    # average counts of the first image and its own.
-    # Returns a scaled image block, and a list of scale values. 
+    """
+    Function to be called by Imcombine. 
+    The function is meant to multiplicative sclae a set of images, (flats in particular). 
+    The input is a numpy block of pixel values (see imcombine). 
+    The function calculates the average number of 
+    counts of the region [25:75, 1700:1800] of the first image. 
+    Then scales the rest of the images by multiplying by the ratio between the 
+    average counts of the first image and its own.
+    Returns a scaled image block, and a list of scale values. 
+    """
     print("Scaling Counts Multiplicatively.\n")
     ni, ny, nx = np.shape(img_block)
     Cavg= [] # Average Counts 
@@ -465,10 +477,12 @@ def lacosmic(img):
     return cleanname, maskname
 
 def Bias_Subtract( img_list, zero_img ):
-    # This function takes in a list of images and a bias image 'zero_img'
-    # and performs a pixel by pixel subtration using numpy.
-    # The function writes the bias subtracted images as 'b.Img_Name.fits'.
-    # The output is a list of names for the bias subtrated images. 
+    """
+    This function takes in a list of images and a bias image 'zero_img'
+    and performs a pixel by pixel subtration using numpy.
+    The function writes the bias subtracted images as 'b.Img_Name.fits'.
+    The output is a list of names for the bias subtrated images.
+    """
     print "\n====================\n"  
     print 'Bias Subtracting Images: \n' 
         
@@ -532,35 +546,65 @@ def Norm_Flat_Poly( flat , order):
     #    order= raw_input("Fit Order?>>>")
     print "Fit Order: %s" % order
     #See in littrow ghost file already exists for blue files
-    #if flat.lower().__contains__("blue")== True:
-        #littrow_exist = glob('littrow_ghost.txt')
-        #if len(littrow_exist) == 1:
-            #print 'littrow_ghost.txt file already exists. Using that for mask.'
-            #littrow_ghost = np.genfromtxt('littrow_ghost.txt')
-            #litt_low = int(littrow_ghost[0])
-            #litt_hi = int(littrow_ghost[1])
-        #else:
-            #print 'Finding and saving littrow ghost location'
-            #littrow_ghost = find_littrow(flat)
-            #litt_low = int(littrow_ghost[0])
-            #litt_hi = int(littrow_ghost[1])
+    if flat.lower().__contains__("blue"):
+        littrow_exist = glob('littrow_ghost.txt')
+        if len(littrow_exist) == 1:
+            print 'littrow_ghost.txt file already exists. Using that for mask.'
+            littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+        else:
+            print 'Finding and saving littrow ghost location'
+            littrow_ghost = find_littrow(flat)
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+    elif not flat.lower().__contains__('red'):
+        #evaluates if neither 'red' nor 'blue' is in the filename
+        littrow_exist = glob('littrow_ghost.txt')
+        #checking for littrow_ghost.txt
+        if len(littrow_exist) == 1:
+            print 'littrow_ghost.txt file already exists. Using that for mask.'
+            littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+        else:
+            unacceptable = True
+            while unacceptable:
+                answer = raw_input("Would you like to try to find a littrow_ghost anyway? >>>")
+                if answer.lower() in config.affirmatives:
+                    unacceptable = False
+                    response = True #wants to fit a littrow ghost
+                elif answer.lower() in config.negatives:
+                    unacceptable = False
+                    response = False
+            if response:
+                print 'Finding and saving littrow ghost location'
+                littrow_ghost = find_littrow(flat)
+                litt_low = int(littrow_ghost[0])
+                litt_hi = int(littrow_ghost[1])
+            else:
+                print "Very well. We shall not look for the littrow_ghost."
+                #dummy values from the greater else statement
+                litt_low = 100
+                litt_hi = 99
+                
     #changedthis both above and below. This ^^^^ was commented, and this \/ \/ was removed from the if statement about colors.
-    littrow_exist = glob('littrow_ghost.txt')
-    if len(littrow_exist) == 1:
-        print 'littrow_ghost.txt file already exists. Using that for mask.'
-        littrow_ghost = np.genfromtxt('littrow_ghost.txt')
-        litt_low = int(littrow_ghost[0])
-        litt_hi = int(littrow_ghost[1])
-    else:
-        print 'Finding and saving littrow ghost location'
-        littrow_ghost = find_littrow(flat)
-        litt_low = int(littrow_ghost[0])
-        litt_hi = int(littrow_ghost[1])
-    #changedthis \/ \/ Commented out the else statement
+    #littrow_exist = glob('littrow_ghost.txt')
+    #if len(littrow_exist) == 1:
+        #print 'littrow_ghost.txt file already exists. Using that for mask.'
+        #littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+        #litt_low = int(littrow_ghost[0])
+        #litt_hi = int(littrow_ghost[1])
     #else:
-        ##These are dummy values so we can concatenate below 
-        #litt_low = 100
-        #litt_hi = 99
+        #print 'Finding and saving littrow ghost location'
+        #littrow_ghost = find_littrow(flat)
+        #litt_low = int(littrow_ghost[0])
+        #litt_hi = int(littrow_ghost[1])
+    #changedthis \/ \/ Commented out the else statement
+    else:
+        #These are dummy values so we can concatenate below
+        litt_low = 100
+        litt_hi = 99
     # Read Flat and Average Center Rows # 
     flat_data = fits.getdata(flat)
     flat_data[ np.isnan(flat_data) ] = 0
