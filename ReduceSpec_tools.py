@@ -352,7 +352,7 @@ def Trim_Spec(img):
             cam_id = config.blue_cam_id
         if cam_id == config.blue_cam_id:
             try:
-                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
+                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
                    useblanks= True, bottom= True )
                 NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
             except IndexError:
