@@ -13,4 +13,5 @@ blue_cam_lotrim= 9
 blue_cam_hightrim= 2055
 red_cam_lotrim= 45
 red_cam_hightrim= blue_cam_hightrim
+zzceti = 'no'
 

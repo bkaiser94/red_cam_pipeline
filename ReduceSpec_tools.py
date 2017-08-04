@@ -359,9 +359,14 @@ def Trim_Spec(img):
                 print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
                 cam_id = config.red_cam_id
         elif cam_id == config.red_cam_id:
-            img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-            print "excepted trimming: ", img_head['CCDSEC']
-            NewHdu = fits.PrimaryHDU(data= img_data[1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+            if img.lower().__contains__('flat'):
+                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                print "excepted trimming: ", img_head['CCDSEC']
+                NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+            else:
+                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                print "excepted trimming: ", img_head['CCDSEC']
+                NewHdu = fits.PrimaryHDU(data= img_data[1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
         new_file_name= check_file_exist('t'+img)
         NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
         print "writing trimmed image to " +new_file_name
@@ -513,11 +518,12 @@ def Norm_Flat_Avg( flat ):
     flat_data[ np.isnan(flat_data) ] = 0
     flat_head = fits.getheader(flat)
     Fix_Header(flat_head)
+    print "norm_flat_avg input flat shape: ", flat_data.shape
     # Calculate Average of the flat excluding bottom row and overscan regions # 
     if flat_head[config.camera_header] == config.blue_cam_id:
         avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
     elif flat_head[config.camera_header]== config.red_cam_id:
-         avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
+        avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
     norm_flat_data = np.divide( flat_data, float(avg_flat) )
     print 'Average Value: %s\n' % avg_flat
     # Copy Header, write changes, and write file #

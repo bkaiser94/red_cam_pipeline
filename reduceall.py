@@ -128,7 +128,7 @@ for x in lamp_files:
                     plotalot = True
                 else:
                     plotalot = False
-                Wavelength_Calibration.calibrate_now(x,y,'no','yes',offset_file,plotall=plotalot)
+                Wavelength_Calibration.calibrate_now(x,y,'no',config.zzceti,offset_file,plotall=plotalot)
         except NameError:
             #protects from the lamp_color not getting assigned in those if statements up there
             print "still no colors in files for like the 200th time."
@@ -136,7 +136,7 @@ for x in lamp_files:
                 plotalot= True
             else:
                 plotalot= False
-            Wavelength_Calibration.calibrate_now(x,y,'no','no',offset_file,plotall=plotalot) #changedthisvalue The 4th arg 'no' is whether or not we're looking at a zzceti, and the 'no' setting is kind of a roll of the dice.
+            Wavelength_Calibration.calibrate_now(x,y,'no',config.zzceti,offset_file,plotall=plotalot) #changedthisvalue The 4th arg 'no' is whether or not we're looking at a zzceti, and the 'no' setting is kind of a roll of the dice.
 
 #=========================
 #Begin Continuum Normalization
