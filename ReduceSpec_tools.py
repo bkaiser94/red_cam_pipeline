@@ -878,7 +878,7 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     print 'Mutliplying the two flats.'
     if hdu[config.camera_header] == config.red_cam_id:
         print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
-        dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim+1])
+        dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
     nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
 
 
