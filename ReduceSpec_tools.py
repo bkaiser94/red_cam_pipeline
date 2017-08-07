@@ -876,6 +876,8 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     # Multiple nQuartz by dome_image_smooth_unpad
     ####################
     print 'Mutliplying the two flats.'
+    if hdu[config.camera_header] == config.red_cam_id:
+        dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim+1])
     nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
 
 
