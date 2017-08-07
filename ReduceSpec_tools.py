@@ -495,7 +495,7 @@ def Bias_Subtract( img_list, zero_img ):
     zero_data = fits.getdata(zero_img)
     bias_sub_list = []
     for img in img_list:
-         if check_file_exist('b.'+img) == 'b.'+img:
+        if check_file_exist('b.'+img) == 'b.'+img:
         #essentially checks if the file exists since the check_file_exist method returns a messed up filename
             print img
             hdu = fits.getheader(img)
