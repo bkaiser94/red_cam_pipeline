@@ -58,6 +58,7 @@ def reduce_now(args):
     flat_lists = rt.List_Combe( rt.Read_List( args[2] ) )
     spec_lists = rt.List_Combe( rt.Read_List( args[3] ) )
     fe_lists = rt.List_Combe( rt.Read_List( args[4] ) )
+    print "fe_lists :" , fe_lists
     
     # Select names from the first image of each observation # 
     zero_names= []
