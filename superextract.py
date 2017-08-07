@@ -301,7 +301,7 @@ def superExtract(*args, **kw):
     #bkgrndmask = goodpixelmask
     for ii in range(nlam):
         if goodpixelmask[ii, backgroundApertures[ii]].any():
-            print "good pixel mask let us in."
+            #print "good pixel mask let us in."
             fit,fit_chisq,fit_niter = polyfitr(xxx[ii,backgroundApertures[ii]], frame[ii, backgroundApertures[ii]], bord, bsigma, w=(goodpixelmask/variance)[ii, backgroundApertures[ii]], verbose=verbose-1,plotall=False,diag=True)
             #If you want to plot the fit to the background you can use this. Or set plotall=True above
             #if ii == 1100:
@@ -578,8 +578,9 @@ def superExtract(*args, **kw):
         # Compute the profile (Marsh eq. 6) and normalize it:
         if verbose: tic = time()
         profile = np.zeros((fitwidth, nlam), dtype=float)
+        print "starting the pixel masking iterations"
         for i in range(fitwidth):
-            print "i :", i
+            #print "i :", i
             profile[i,:] = (Q[:,i,:] * Gsoln).sum(0)
 
         #Normalize the profile here
@@ -609,14 +610,14 @@ def superExtract(*args, **kw):
         variance = variance0 / (goodpixelmask + 1e-9) # De-weight bad pixels, avoiding infinite variance
 
         outlierVariances = (frame - modelData)**2/variance
-        #if outlierVariances.max() > csigma**2:
-        if iter==0:
+        if outlierVariances.max() > csigma**2:
+        #if iter==0:
             print "SHOULD BE CONTINUING newBadPixels"
             newBadPixels = True
             # Base our nreject-counting only on pixels within the spectral trace:
             maxRejectedValue = max(csigma**2, np.sort(outlierVariances[Qmask])[-nreject])
             worstOutliers = (outlierVariances>=maxRejectedValue).nonzero()
-            #goodpixelmask[worstOutliers] = False #changedthisvalue
+            goodpixelmask[worstOutliers] = False #changedthisvalue and again so uncommented was original state
             numberRejected = len(worstOutliers[0])
             #pdb.set_trace()
         #newvar= False
