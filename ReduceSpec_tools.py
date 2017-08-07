@@ -332,56 +332,59 @@ def Trim_Spec(img):
     # The limits of the 1x2 trim are: [:, 1:199, 19:4111]
     print "\n====================\n"  
     print 'Triming Image: %s\n' % img
-    img_head= fits.getheader(img) 
-    img_data= fits.getdata(img)    
-    Fix_Header(img_head)
-    for attempt in config.length_headers:
-        try:
-            length = float(img_head[attempt])
-            break
-        except KeyError:
-            pass
-    if length == 2071.:
-        #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
-                   #useblanks= True, bottom= True )
-        try:
-            cam_id= img_head[config.camera_header]
-        except KeyError:
-            print "Unable to locate " + config.camera_header + " in the headers of " + img
-            print "We're going to try blue camera indices."
-            cam_id = config.blue_cam_id
-        if cam_id == config.blue_cam_id:
+    if check_file_exist('t'+img) == 't'+img:
+        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
+        img_head= fits.getheader(img) 
+        img_data= fits.getdata(img)    
+        Fix_Header(img_head)
+        for attempt in config.length_headers:
             try:
-                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
-                   useblanks= True, bottom= True )
-                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
-            except IndexError:
-                print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
-                cam_id = config.red_cam_id
-        elif cam_id == config.red_cam_id:
-            if img.lower().__contains__('flat'):
-                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                print "excepted trimming: ", img_head['CCDSEC']
-                NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-            else:
-                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                print "excepted trimming: ", img_head['CCDSEC']
-                #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
-                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-        new_file_name= check_file_exist('t'+img)
-        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-        print "writing trimmed image to " +new_file_name
-        return (new_file_name)
-    elif length == 4142.:
-        print "pixel length interpreted as 4142"
-        img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
-                   useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
-        new_file_name= check_file_exist('t'+img)
-        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-        return (new_file_name)
+                length = float(img_head[attempt])
+                break
+            except KeyError:
+                pass
+        if length == 2071.:
+            #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                    #useblanks= True, bottom= True )
+            try:
+                cam_id= img_head[config.camera_header]
+            except KeyError:
+                print "Unable to locate " + config.camera_header + " in the headers of " + img
+                print "We're going to try blue camera indices."
+                cam_id = config.blue_cam_id
+            if cam_id == config.blue_cam_id:
+                try:
+                    img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
+                    useblanks= True, bottom= True )
+                    NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
+                except IndexError:
+                    print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
+                    cam_id = config.red_cam_id
+            elif cam_id == config.red_cam_id:
+                if img.lower().__contains__('flat'):
+                    img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                    NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+                else:
+                    img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                    #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
+                    NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+            new_file_name= check_file_exist('t'+img)
+            NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+            print "writing trimmed image to " +new_file_name
+            return (new_file_name)
+        elif length == 4142.:
+            print "pixel length interpreted as 4142"
+            img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
+                    useblanks= True, bottom= True )
+            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
+            new_file_name= check_file_exist('t'+img)
+            NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+            return (new_file_name)
+        else:
+            print 'WARNING. Image not trimmed. \n'
     else:
-        print 'WARNING. Image not trimmed. \n'
+        print "file already exists."
+        return 't'+img
 
 def Add_Scale (img_block):
     # Function to be called by Imcombine. 
@@ -492,20 +495,24 @@ def Bias_Subtract( img_list, zero_img ):
     zero_data = fits.getdata(zero_img)
     bias_sub_list = []
     for img in img_list:
-        print img
-        hdu = fits.getheader(img)
-        Fix_Header(hdu) 
-        img_data = fits.getdata(img)
-        img_data[ np.isnan(img_data) ] = 0
-        b_img_data = np.subtract(img_data, zero_data)
-        print 'b.'+"%s Mean: %.3f StDev: %.3f" % (img, np.mean(b_img_data), np.std(img_data))
-        hdu.set( 'DATEBIAS', datetime.datetime.now().strftime("%Y-%m-%d"), 'Date of Bias Subtraction' )
-        hdu.append( ('BIASSUB', zero_img ,'Image Used to Bias Subtract.'),
-                   useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(b_img_data, hdu)
-        bias_sub_name= check_file_exist('b.'+img)
-        NewHdu.writeto(bias_sub_name, output_verify='warn', clobber= True)
-        bias_sub_list.append( bias_sub_name )
+         if check_file_exist('b.'+img) == 'b.'+img:
+        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
+            print img
+            hdu = fits.getheader(img)
+            Fix_Header(hdu) 
+            img_data = fits.getdata(img)
+            img_data[ np.isnan(img_data) ] = 0
+            b_img_data = np.subtract(img_data, zero_data)
+            print 'b.'+"%s Mean: %.3f StDev: %.3f" % (img, np.mean(b_img_data), np.std(img_data))
+            hdu.set( 'DATEBIAS', datetime.datetime.now().strftime("%Y-%m-%d"), 'Date of Bias Subtraction' )
+            hdu.append( ('BIASSUB', zero_img ,'Image Used to Bias Subtract.'),
+                    useblanks= True, bottom= True )
+            NewHdu = fits.PrimaryHDU(b_img_data, hdu)
+            bias_sub_name= check_file_exist('b.'+img)
+            NewHdu.writeto(bias_sub_name, output_verify='warn', clobber= True)
+            bias_sub_list.append( bias_sub_name )
+        else:
+            bias_sub_list.append('b.' +img)
     return bias_sub_list
 
 # ===========================================================================
@@ -1210,7 +1217,6 @@ def imcombine(im_list, output_name, method,
         #   axis[0] has length of number of images.
         #   axis[1] is the vertical axis of the chip.
         #   axis[2] is the horizontal axis of the chip.
-        print "fits file to be assessed: " + im_list[i]
         if i == 0:  
             img_data = fits.getdata(im_list[i])
             #n,Ny,Nx = np.shape(img_data)
