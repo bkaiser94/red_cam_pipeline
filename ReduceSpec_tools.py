@@ -332,59 +332,54 @@ def Trim_Spec(img):
     # The limits of the 1x2 trim are: [:, 1:199, 19:4111]
     print "\n====================\n"  
     print 'Triming Image: %s\n' % img
-    if check_file_exist('t'+img) == 't'+img:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-        img_head= fits.getheader(img) 
-        img_data= fits.getdata(img)    
-        Fix_Header(img_head)
-        for attempt in config.length_headers:
+    img_head= fits.getheader(img) 
+    img_data= fits.getdata(img)    
+    Fix_Header(img_head)
+    for attempt in config.length_headers:
+        try:
+            length = float(img_head[attempt])
+            break
+        except KeyError:
+            pass
+    if length == 2071.:
+        #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                #useblanks= True, bottom= True )
+        try:
+            cam_id= img_head[config.camera_header]
+        except KeyError:
+            print "Unable to locate " + config.camera_header + " in the headers of " + img
+            print "We're going to try blue camera indices."
+            cam_id = config.blue_cam_id
+        if cam_id == config.blue_cam_id:
             try:
-                length = float(img_head[attempt])
-                break
-            except KeyError:
-                pass
-        if length == 2071.:
-            #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
-                    #useblanks= True, bottom= True )
-            try:
-                cam_id= img_head[config.camera_header]
-            except KeyError:
-                print "Unable to locate " + config.camera_header + " in the headers of " + img
-                print "We're going to try blue camera indices."
-                cam_id = config.blue_cam_id
-            if cam_id == config.blue_cam_id:
-                try:
-                    img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
-                    useblanks= True, bottom= True )
-                    NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
-                except IndexError:
-                    print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
-                    cam_id = config.red_cam_id
-            elif cam_id == config.red_cam_id:
-                if img.lower().__contains__('flat'):
-                    img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                    NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-                else:
-                    img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                    #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
-                    NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-            new_file_name= check_file_exist('t'+img)
-            NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-            print "writing trimmed image to " +new_file_name
-            return (new_file_name)
-        elif length == 4142.:
-            print "pixel length interpreted as 4142"
-            img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
-                    useblanks= True, bottom= True )
-            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
-            new_file_name= check_file_exist('t'+img)
-            NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-            return (new_file_name)
-        else:
-            print 'WARNING. Image not trimmed. \n'
+                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
+                useblanks= True, bottom= True )
+                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
+            except IndexError:
+                print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
+                cam_id = config.red_cam_id
+        elif cam_id == config.red_cam_id:
+            if img.lower().__contains__('flat'):
+                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+            else:
+                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
+                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+        new_file_name= check_file_exist('t'+img)
+        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        print "writing trimmed image to " +new_file_name
+        return (new_file_name)
+    elif length == 4142.:
+        print "pixel length interpreted as 4142"
+        img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
+                useblanks= True, bottom= True )
+        NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
+        new_file_name= check_file_exist('t'+img)
+        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        return (new_file_name)
     else:
-        print "file already exists."
-        return 't'+img
+        print 'WARNING. Image not trimmed. \n'
 
 def Add_Scale (img_block):
     # Function to be called by Imcombine. 
@@ -495,24 +490,20 @@ def Bias_Subtract( img_list, zero_img ):
     zero_data = fits.getdata(zero_img)
     bias_sub_list = []
     for img in img_list:
-        if check_file_exist('b.'+img) == 'b.'+img:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-            print img
-            hdu = fits.getheader(img)
-            Fix_Header(hdu) 
-            img_data = fits.getdata(img)
-            img_data[ np.isnan(img_data) ] = 0
-            b_img_data = np.subtract(img_data, zero_data)
-            print 'b.'+"%s Mean: %.3f StDev: %.3f" % (img, np.mean(b_img_data), np.std(img_data))
-            hdu.set( 'DATEBIAS', datetime.datetime.now().strftime("%Y-%m-%d"), 'Date of Bias Subtraction' )
-            hdu.append( ('BIASSUB', zero_img ,'Image Used to Bias Subtract.'),
-                    useblanks= True, bottom= True )
-            NewHdu = fits.PrimaryHDU(b_img_data, hdu)
-            bias_sub_name= check_file_exist('b.'+img)
-            NewHdu.writeto(bias_sub_name, output_verify='warn', clobber= True)
-            bias_sub_list.append( bias_sub_name )
-        else:
-            bias_sub_list.append('b.' +img)
+        print img
+        hdu = fits.getheader(img)
+        Fix_Header(hdu) 
+        img_data = fits.getdata(img)
+        img_data[ np.isnan(img_data) ] = 0
+        b_img_data = np.subtract(img_data, zero_data)
+        print 'b.'+"%s Mean: %.3f StDev: %.3f" % (img, np.mean(b_img_data), np.std(img_data))
+        hdu.set( 'DATEBIAS', datetime.datetime.now().strftime("%Y-%m-%d"), 'Date of Bias Subtraction' )
+        hdu.append( ('BIASSUB', zero_img ,'Image Used to Bias Subtract.'),
+                useblanks= True, bottom= True )
+        NewHdu = fits.PrimaryHDU(b_img_data, hdu)
+        bias_sub_name= check_file_exist('b.'+img)
+        NewHdu.writeto(bias_sub_name, output_verify='warn', clobber= True)
+        bias_sub_list.append( bias_sub_name )
     return bias_sub_list
 
 # ===========================================================================
@@ -525,32 +516,27 @@ def Norm_Flat_Avg( flat ):
     print "\n====================\n" 
     print 'Normalizing %s By Dividing Each Pixel By Average Value:' % ( flat )
     # Read Data, take average, and divide #
-    if check_file_exist('n'+flat) == 'n'+flat:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-        flat_data = fits.getdata(flat)
-        flat_data[ np.isnan(flat_data) ] = 0
-        flat_head = fits.getheader(flat)
-        Fix_Header(flat_head)
-        print "norm_flat_avg input flat shape: ", flat_data.shape
-        # Calculate Average of the flat excluding bottom row and overscan regions # 
-        if flat_head[config.camera_header] == config.blue_cam_id:
-            avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
-        elif flat_head[config.camera_header]== config.red_cam_id:
-            avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
-        norm_flat_data = np.divide( flat_data, float(avg_flat) )
-        print 'Average Value: %s\n' % avg_flat
-        # Copy Header, write changes, and write file #
-        
-        hdu.append( ('NORMFLAT', avg_flat,'Average Used to Normalize the Flat.'), 
-                useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= norm_flat_data, header= flat_head)
-        norm_flat_name= check_file_exist('n'+flat)
-        NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
-        
-        print 'Flat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(norm_flat_data), np.std(norm_flat_data))
-    else:
-        print 'n' +flat + " already exists, so we're skipping flat normalization."
-        norm_flat_name = 'n'+flat
+    flat_data = fits.getdata(flat)
+    flat_data[ np.isnan(flat_data) ] = 0
+    flat_head = fits.getheader(flat)
+    Fix_Header(flat_head)
+    print "norm_flat_avg input flat shape: ", flat_data.shape
+    # Calculate Average of the flat excluding bottom row and overscan regions # 
+    if flat_head[config.camera_header] == config.blue_cam_id:
+        avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
+    elif flat_head[config.camera_header]== config.red_cam_id:
+        avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
+    norm_flat_data = np.divide( flat_data, float(avg_flat) )
+    print 'Average Value: %s\n' % avg_flat
+    # Copy Header, write changes, and write file #
+    
+    hdu.append( ('NORMFLAT', avg_flat,'Average Used to Normalize the Flat.'), 
+            useblanks= True, bottom= True )
+    NewHdu = fits.PrimaryHDU(data= norm_flat_data, header= flat_head)
+    norm_flat_name= check_file_exist('n'+flat)
+    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    
+    print 'Flat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(norm_flat_data), np.std(norm_flat_data))
     return (norm_flat_name)
 
 # ============================================================================    
@@ -628,328 +614,103 @@ def Norm_Flat_Poly( flat , order):
         litt_low = 100
         litt_hi = 99
     # Read Flat and Average Center Rows #
-    if check_file_exist('n'+flat) == 'n'+flat:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-        flat_data = fits.getdata(flat)
-        flat_data[ np.isnan(flat_data) ] = 0
-        print "This should be " + str(2055-10) +" if this flat was improperly trimmed."
-        print "flat_data.shape: ", flat_data.shape
-        if len(flat_data.shape) == 3:
-            fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
-        elif len(flat_data.shape) == 2:
-            fit_data= np.median(flat_data[95:105], axis=0) # Median of center Rows ###
-        X= range(0,len(fit_data)) # Column Numbers 
-        # Fit the data removeing the limits of the overscan regions and littrow ghost. #
-        hdu = fits.getheader(flat)
-        Fix_Header(hdu)
-        if hdu[config.camera_header] == config.blue_cam_id:
-            lo= config.blue_cam_lotrim
-            hi= config.blue_cam_hightrim
-        elif hdu[config.camera_header] == config.red_cam_id:
-            lo= config.red_cam_lotrim
-            hi= config.red_cam_hightrim
-        xvals = np.concatenate((X[lo:litt_low],X[litt_hi:hi]))
-        yvals = np.concatenate((fit_data[lo:litt_low],fit_data[litt_hi:hi]))
-        # Calculate Fit # 
-        coeff= np.polyfit(xvals, yvals, order ) # coefficents of polynomial fit # 
-        profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
-        #plt.clf()
-        #plt.plot(xvals,yvals,'b.')
-        #plt.plot(X,profile,'r')
-        #plt.show()
-        #Save values for diagnostics
-        #if flat.lower().__contains__("blue"):
-        #    diagnostic[0:len(X[lo:hi]),22] = X[lo:hi]
-        #    diagnostic[0:len(fit_data[lo:hi]),23] = fit_data[lo:hi]
-        #    diagnostic[0:len(profile),24] = profile
-        if flat.lower().__contains__("red"):
-            diagnostic[0:len(X[lo:hi]),25] = X[lo:hi]
-            diagnostic[0:len(fit_data[lo:hi]),26] = fit_data[lo:hi]
-            diagnostic[0:len(profile),27] = profile
-        # Divide each Row by the Profile #
-        else:
-            pass
-        if len(flat_data.shape)==3:
-            for row in flat_data[0]:
-                i= 0; 
-                while i < len(row): 
-                    row[i]= row[i]/profile[i]
-                    i= i+1  
-        elif len(flat_data.shape) ==2:
-            for row in flat_data:
-                i= 0; 
-                while i < len(row): 
-                    row[i]= row[i]/profile[i]
-                    i= i+1  
-                
-        # Copy Header, write changes, and write file #
-        
-        hdu.append( ('NORMFLAT ', order,'Flat Polynomial Fit Order'), 
-                useblanks= True, bottom= True )
-        for i in range(0,len(coeff)):
-            coeff_str=  "{0:.5e}".format(coeff[i])
-            coeff_order = str(len(coeff)-i-1)
-            coeff_title = 'NCOEF%s' %coeff_order
-            coeff_expla = 'Flat Polynomial Coefficient - Term %s' %coeff_order
-            hdu.append((coeff_title,coeff_str,coeff_expla),
-                    useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= flat_data, header= hdu)
-        norm_flat_name= check_file_exist('n'+flat)
-        NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
-        
-        print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
+    flat_data = fits.getdata(flat)
+    flat_data[ np.isnan(flat_data) ] = 0
+    print "flat_data.shape: ", flat_data.shape
+    if len(flat_data.shape) == 3:
+        fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows ###
+    elif len(flat_data.shape) == 2:
+        fit_data= np.median(flat_data[95:105], axis=0) # Median of center Rows ###
+    X= range(0,len(fit_data)) # Column Numbers 
+    # Fit the data removeing the limits of the overscan regions and littrow ghost. #
+    hdu = fits.getheader(flat)
+    Fix_Header(hdu)
+    if hdu[config.camera_header] == config.blue_cam_id:
+        lo= config.blue_cam_lotrim
+        hi= config.blue_cam_hightrim
+    elif hdu[config.camera_header] == config.red_cam_id:
+        lo= config.red_cam_lotrim
+        hi= config.red_cam_hightrim
+    xvals = np.concatenate((X[lo:litt_low],X[litt_hi:hi]))
+    yvals = np.concatenate((fit_data[lo:litt_low],fit_data[litt_hi:hi]))
+    # Calculate Fit # 
+    coeff= np.polyfit(xvals, yvals, order ) # coefficents of polynomial fit # 
+    profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
+    #plt.clf()
+    #plt.plot(xvals,yvals,'b.')
+    #plt.plot(X,profile,'r')
+    #plt.show()
+    #Save values for diagnostics
+    #if flat.lower().__contains__("blue"):
+    #    diagnostic[0:len(X[lo:hi]),22] = X[lo:hi]
+    #    diagnostic[0:len(fit_data[lo:hi]),23] = fit_data[lo:hi]
+    #    diagnostic[0:len(profile),24] = profile
+    if flat.lower().__contains__("red"):
+        diagnostic[0:len(X[lo:hi]),25] = X[lo:hi]
+        diagnostic[0:len(fit_data[lo:hi]),26] = fit_data[lo:hi]
+        diagnostic[0:len(profile),27] = profile
+    # Divide each Row by the Profile #
     else:
-        print 'n' +flat + " already exists, so we're skipping flat normalization."
-        print "diagnostic indices 25, 26, and 27 will be empty"
-        norm_flat_name = 'n'+flat
+        pass
+    if len(flat_data.shape)==3:
+        for row in flat_data[0]:
+            i= 0; 
+            while i < len(row): 
+                row[i]= row[i]/profile[i]
+                i= i+1  
+    elif len(flat_data.shape) ==2:
+        for row in flat_data:
+            i= 0; 
+            while i < len(row): 
+                row[i]= row[i]/profile[i]
+                i= i+1  
+            
+    # Copy Header, write changes, and write file #
+    
+    hdu.append( ('NORMFLAT ', order,'Flat Polynomial Fit Order'), 
+            useblanks= True, bottom= True )
+    for i in range(0,len(coeff)):
+        coeff_str=  "{0:.5e}".format(coeff[i])
+        coeff_order = str(len(coeff)-i-1)
+        coeff_title = 'NCOEF%s' %coeff_order
+        coeff_expla = 'Flat Polynomial Coefficient - Term %s' %coeff_order
+        hdu.append((coeff_title,coeff_str,coeff_expla),
+                useblanks= True, bottom= True )
+    NewHdu = fits.PrimaryHDU(data= flat_data, header= hdu)
+    norm_flat_name= check_file_exist('n'+flat)
+    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    
+    print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
     return (norm_flat_name)
 
 # ============================================================================    
 
 def Norm_Flat_Boxcar( flat ):
     print 'Normalizing ', flat , 'by boxcar smoothing'
-    if check_file_exist('n'+flat) == 'n'+flat:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-        flat_image = fits.getdata(flat)
-        if len(flat_image.shape) == 3:
-            flat_data = flat_image[0,:,:] ###
-        elif len(flat_image.shape) == 2:
-            flat_data = flat_image[:,:] ###
-        #See if littrow ghost file already exists for blue files
-        if flat.lower().__contains__("blue")== True:
-            littrow_exist = glob('littrow_ghost.txt')
-            if len(littrow_exist) == 1:
-                print 'littrow_ghost.txt file already exists. Using that for mask.'
-                littrow_ghost = np.genfromtxt('littrow_ghost.txt')
-                litt_low = int(littrow_ghost[0])
-                litt_hi = int(littrow_ghost[1])
-            else:
-                print 'Finding and saving littrow ghost location'
-                littrow_ghost = find_littrow(flat)
-                litt_low = int(littrow_ghost[0])
-                litt_hi = int(littrow_ghost[1])
-            image_masked = flat_data.copy()
-            rows = image_masked.shape[0]
-            columns = np.arange(image_masked.shape[1])
-            columns_littrow = np.linspace(litt_low,litt_hi,num=(litt_hi-litt_low)+1)
-            for x in np.arange(rows):
-                row_data = np.concatenate((flat_data[x,litt_low-15:litt_low+1],flat_data[x,litt_hi:litt_hi+16]))
-                columns_fit = np.concatenate((columns[litt_low-15:litt_low+1],columns[litt_hi:litt_hi+16]))
-                pol = np.polyfit(columns_fit,row_data,2)
-                polp = np.poly1d(pol)
-                #if (x > 80) and (x < 90):
-                #    plt.plot(columns_fit,row_data,'b+')
-                #    plt.plot(columns_fit,polp(columns_fit),'r')
-                #    plt.show()
-                if x == 100:
-                    diagnostic[0:len(columns_fit),11] = columns_fit
-                    diagnostic[0:len(row_data),12] = row_data
-                    diagnostic[0:len(row_data),13] = polp(columns_fit)
-                image_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
+    flat_image = fits.getdata(flat)
+    if len(flat_image.shape) == 3:
+        flat_data = flat_image[0,:,:] ###
+    elif len(flat_image.shape) == 2:
+        flat_data = flat_image[:,:] ###
+    #See if littrow ghost file already exists for blue files
+    if flat.lower().__contains__("blue")== True:
+        littrow_exist = glob('littrow_ghost.txt')
+        if len(littrow_exist) == 1:
+            print 'littrow_ghost.txt file already exists. Using that for mask.'
+            littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
         else:
-            #These are dummy values so we can concatenate below 
-            litt_low = 100
-            litt_hi = 99
-            image_masked = flat_data.copy()
-        
-        print 'Boxcar smoothing ',  flat, ' now.\n'
-        kernel_size = 200 #size of boxcar kernel to convolve with image
-        boxcar_kernel = Box2DKernel(kernel_size)
-        image_pad = np.pad(image_masked,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
-        image_smooth = convolve_fft(image_pad,boxcar_kernel,boundary='fill',fill_value=0)
-        image_smooth_unpad = image_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
-
-        image_divided = flat_data / image_smooth_unpad
-
-        #plt.clf()
-        #plt.plot(image_divided[100,:])
-        #plt.show()
-
-        if flat.lower().__contains__("blue"):
-            diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
-        elif flat.lower().__contains__("red"):
-            diagnostic[0:len(image_divided[100,:]),15] = image_divided[100,:]
-        else:
-            print "Assuming we should put this colorless flat in blue spot in the diagnostics,\nwhich is column index 14."
-            diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
-
-
-        # Copy Header, write changes, and write file #
-        hdu = fits.getheader(flat)
-        Fix_Header(hdu)
-        hdu.append( ('FLATTYPE', 'BOXCAR','Kernel used to flatten'), useblanks= True, bottom= True )
-        hdu.append(('KERNEL',kernel_size,'Kernel size used'), useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= image_divided, header= hdu)
-        norm_flat_name= check_file_exist('n'+flat)
-        NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
-        
-        print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
-    else:
-        print "file exists: " + 'n'+flat
-        print "diagnostic indices11, 12, 13, 14, and 15 will be empty"
-        norm_flat_name= 'n'+flat
-    return (norm_flat_name)
-
-# ============================================================================    
-
-def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
-    if check_file_exist('n'+flat) == 'n'+flat:
-        #essentially checks if the file exists since the check_file_exist method returns a messed up filename
-        print 'Normalizing ', flat, 'by using multiple boxcars.'
-        flat_image = fits.getdata(flat)
-        quartz_data = flat_image[0,:,:] ###
-        hdu = fits.getheader(flat)
-        if adc_stat == None:
-            adc_stat = hdu['ADCSTAT']
-        print 'Using ADC status: ', adc_stat
-        if adc_stat == 'IN':
-            dome_flat_directory = '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/domeflats/ADC'
-            dome_flat_name = 'tb.DomeFlat_930_blue_adc.fits'
-        else:
-            dome_flat_directory = '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/domeflats/NOADC'
-            dome_flat_name = 'tb.DomeFlat_930_blue_noadc.fits'
-
-        print 'Masking littrow ghost.'
-        if flat.lower().__contains__("blue")== True:
-            littrow_exist = glob('littrow_ghost.txt')
-            if len(littrow_exist) == 1:
-                print 'littrow_ghost.txt file already exists. Using that for mask.'
-                littrow_ghost = np.genfromtxt('littrow_ghost.txt')
-                litt_low = int(littrow_ghost[0])
-                litt_hi = int(littrow_ghost[1])
-            else:
-                print 'Finding and saving littrow ghost location'
-                littrow_ghost = find_littrow(flat)
-                litt_low = int(littrow_ghost[0])
-                litt_hi = int(littrow_ghost[1])
-            quartzim_masked = quartz_data.copy()
-            rows = quartzim_masked.shape[0]
-            columns = np.arange(quartzim_masked.shape[1])
-            columns_littrow = np.linspace(litt_low,litt_hi,num=(litt_hi-litt_low)+1)
-            for x in np.arange(rows):
-                row_data = np.concatenate((quartz_data[x,litt_low-15:litt_low+1],quartz_data[x,litt_hi:litt_hi+16]))
-                columns_fit = np.concatenate((columns[litt_low-15:litt_low+1],columns[litt_hi:litt_hi+16]))
-                pol = np.polyfit(columns_fit,row_data,2)
-                polp = np.poly1d(pol)
-                #if (x > 80) and (x < 90):
-                #    plt.plot(columns_fit,row_data,'b+')
-                #    plt.plot(columns_fit,polp(columns_fit),'r')
-                #    plt.show()
-                if x == 100:
-                    diagnostic[0:len(columns_fit),11] = columns_fit
-                    diagnostic[0:len(row_data),12] = row_data
-                    diagnostic[0:len(row_data),13] = polp(columns_fit)
-                quartzim_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
-        else:
-            #These are dummy values so we can concatenate below 
-            litt_low = 100
-            litt_hi = 99
-            image_masked = quartz_data.copy()
-        print 'Boxcar smoothing quartz flat with kernel of 20'
-        quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
-        quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
-
-        quartz_image_pad = np.pad(quartzim_masked,quartz_kernel_size,'mean',stat_length=10)
-        quartzim_smooth = convolve(quartz_image_pad,quartz_boxcar_kernel)
-        quartz_image_smooth_unpad = quartzim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
-
-        nQuartz20 = quartz_data / quartz_image_smooth_unpad
-
-        #############################
-        #Now do the same for the domeflat
-        #############################
-        print 'Starting dome flat portion'
-        getcwd = os.getcwd()
-        os.chdir(dome_flat_directory)
-        dome = fits.getdata(dome_flat_name)
-        domeim = dome[0,:,:]
-
-        #Replace littrow ghost with parabolic fit between edges
-        print 'Masking littrow ghost in dome flat'
-        domeim_masked = domeim.copy()
-        littrow_ghost_red = np.genfromtxt('littrow_ghost_red.txt')
-        litt_low_red = int(littrow_ghost_red[0])
-        litt_hi_red = int(littrow_ghost_red[1])
-        rows = domeim.shape[0]
-        columns = np.arange(domeim.shape[1])
-        columns_littrow_red = np.linspace(litt_low_red,litt_hi_red,num=(litt_hi_red-litt_low_red)+1)
-        columns_fit_red = np.linspace(litt_low_red-15,litt_hi_red+15,num=(litt_hi_red-litt_low_red)+31)
-        #print columns_fit_red
-        
-        for x in np.arange(rows):
-            #row_data = image[x,litt_low-15:litt_hi+16]
-            row_data_red = np.concatenate((domeim[x,litt_low_red-15:litt_low_red+1],domeim[x,litt_hi_red:litt_hi_red+16]))
-            columns_fit_red = np.concatenate((columns[litt_low_red-15:litt_low_red+1],columns[litt_hi_red:litt_hi_red+16]))
-            pol = np.polyfit(columns_fit_red,row_data_red,2)
-            polp = np.poly1d(pol)
-            #if (x > 80) and (x < 90):
-            #    plt.plot(columns_fit_red,row_data_red,'b+')
-            #    plt.plot(columns_fit_red,polp(columns_fit_red),'r')
-            #    plt.show()
-            domeim_masked[x,litt_low_red:litt_hi_red+1] = polp(columns_littrow_red)
-
-        #quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
-        #quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
-        #boxcar_kernel = Gaussian2DKernel(kernel_size)
-        print 'Boxcar smoothing dome flat with kernel of 20'
-        dome_image_pad = np.pad(domeim_masked,quartz_kernel_size,'mean',stat_length=10)
-        domeim_smooth = convolve(dome_image_pad,quartz_boxcar_kernel)
-        dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
-        
-        os.chdir(getcwd)
-
-        ####################
-        # Multiple nQuartz by dome_image_smooth_unpad
-        ####################
-        print 'Mutliplying the two flats.'
-        if hdu[config.camera_header] == config.red_cam_id:
-            print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
-            dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
-        nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
-
-
-        ####################
-        # Take nQB, fit a nth order poly, then smooth with boxcar 200
-        ####################
-        print 'Fitting 5th order polynomial'
-        order= 5;
-        nnQD = nQD.copy()
-        fit_data = np.median(nQD[95:105],axis=0)# Median of center Rows
-
-        X= range(0,len(fit_data)) # Column Numbers 
-        # Fit the data removeing the limits of the overscan regions and littrow ghost. #
-
-        # Calculate Fit # 
-        coeff= np.polyfit(X[650:], fit_data[650:], order ) # coefficents of polynomial fit # 
-        profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
-        #plt.clf()
-        #plt.plot(X[650:],fit_data[650:],'b')
-        #plt.plot(X,profile,'r')
-        #plt.plot(X[650:],fit_data[650:]/profile[650:])
-        #plt.show()
-        for row in nnQD:
-            i= 0; 
-            while i < len(row): 
-                row[i]= row[i]/profile[i]
-                i= i+1   
-        
-
-        if flat.lower().__contains__("blue"):
-            diagnostic[0:len(X[650:]),22] = X[650:]
-            diagnostic[0:len(fit_data[650:]),23] = fit_data[650:]
-            diagnostic[0:len(profile),24] = profile
-
-
-        #newim = fits.PrimaryHDU(data=nnQD,header=domehdu.header)
-        #newim.writeto('nnQD_blue.fits',clobber=True)
-        #exit()
-
-        finalim_masked = nnQD.copy()
-        rows = finalim_masked.shape[0]
-        columns = np.arange(finalim_masked.shape[1])
+            print 'Finding and saving littrow ghost location'
+            littrow_ghost = find_littrow(flat)
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+        image_masked = flat_data.copy()
+        rows = image_masked.shape[0]
+        columns = np.arange(image_masked.shape[1])
         columns_littrow = np.linspace(litt_low,litt_hi,num=(litt_hi-litt_low)+1)
         for x in np.arange(rows):
-            row_data = np.concatenate((nnQD[x,litt_low-15:litt_low+1],nnQD[x,litt_hi:litt_hi+16]))
+            row_data = np.concatenate((flat_data[x,litt_low-15:litt_low+1],flat_data[x,litt_hi:litt_hi+16]))
             columns_fit = np.concatenate((columns[litt_low-15:litt_low+1],columns[litt_hi:litt_hi+16]))
             pol = np.polyfit(columns_fit,row_data,2)
             polp = np.poly1d(pol)
@@ -957,89 +718,295 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
             #    plt.plot(columns_fit,row_data,'b+')
             #    plt.plot(columns_fit,polp(columns_fit),'r')
             #    plt.show()
-            finalim_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
-
-        print 'Boxcar smoothing with 200'
-        kernel_size = 200 #size of boxcar kernel to convolve with image
-        boxcar_kernel = Box2DKernel(kernel_size)
-
-        finalimage_pad = np.pad(finalim_masked,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
-        finalimage_smooth = convolve_fft(finalimage_pad,boxcar_kernel,boundary='fill',fill_value=0)
-        finalimage_smooth_unpad = finalimage_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
-        image_divided = nnQD / finalimage_smooth_unpad
-
-        #newim = fits.PrimaryHDU(data=image_divided,header=domehdu.header)
-        #newim.writeto('nnnQD_blue.fits',clobber=True)
-
-        ###############################
-        #Do a 200 pixel boxcar on the original quartz flat and use that for the first 760 pixels.
-        ###############################
-        flat_image = fits.getdata(flat)
-        flat_data = flat_image[0,:,:] ###
-        # Calculate Fit # 
-        fit_data = np.median(flat_data[95:105],axis=0)
-        X= range(0,len(fit_data)) # Column Numbers 
-        order = 3.
-        coeff= np.polyfit(X, fit_data, order ) # coefficents of polynomial fit # 
-        profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
-        #plt.clf()
-        #plt.plot(X[650:],fit_data[650:],'b')
-        #plt.plot(X,profile,'r')
-        #plt.plot(X[650:],fit_data[650:]/profile[650:])
-        #plt.show()
-        for row in flat_data:
-            i= 0; 
-            while i < len(row): 
-                row[i]= row[i]/profile[i]
-                i= i+1   
-
-        print 'Boxcar smoothing ',  flat, ' now.\n'
-        kernel_size = 200 #size of boxcar kernel to convolve with image
-        boxcar_kernel = Box2DKernel(kernel_size)
-
-        image_pad = np.pad(flat_data,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
-        image_smooth = convolve_fft(image_pad,boxcar_kernel,boundary='fill',fill_value=0)
-        image_smooth_unpad = image_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
-
-        image_divided_quartz = flat_data / image_smooth_unpad
-        
-
-        ###############################
-        #Stictch the two images together
-        ###############################
-        print 'Stitching images together.'
-        try:
-            stitchloc_temp = np.genfromtxt('stitch_location.txt')
-            stitchloc = float(stitchloc_temp)
-            print 'Found stitch_location.txt file. Using ', stitchloc, ' for stitching location.'
-        except:
-            stitchloc = 747.
-            print 'No file found. Using ', stitchloc, ' for stitching location.'
-        leftside = image_divided_quartz[:,:stitchloc]
-        rightside = image_divided[:,stitchloc:]
-
-        newimage = np.concatenate((leftside,rightside),axis=1)
-
-
-        if flat.lower().__contains__("blue"):
-            diagnostic[0:len(newimage[100,:]),14] = newimage[100,:]
-
-        # Copy Header, write changes, and write file #
-        hdu = fits.getheader(flat)
-        Fix_Header(hdu)
-        hdu.append( ('FLATTYPE', 'BOXCAR','Kernel used to flatten'), useblanks= True, bottom= True )
-        hdu.append(('KERNEL',kernel_size,'Kernel size used'), useblanks= True, bottom= True )
-        hdu.append(('DOMEFLAT',dome_flat_name,'Dome Flat used'), useblanks= True, bottom= True )
-        hdu.append(('STITCHLO',stitchloc,'Stitch location between flats'), useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= newimage, header= hdu)
-        norm_flat_name= check_file_exist('n'+flat)
-        NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
-        
-        print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
+            if x == 100:
+                diagnostic[0:len(columns_fit),11] = columns_fit
+                diagnostic[0:len(row_data),12] = row_data
+                diagnostic[0:len(row_data),13] = polp(columns_fit)
+            image_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
     else:
-        print "file exists: " + 'n'+flat
-        print "diagnostic indices11, 12, 13, 14, and 15 will be empty"
-        norm_flat_name= 'n'+flat
+        #These are dummy values so we can concatenate below 
+        litt_low = 100
+        litt_hi = 99
+        image_masked = flat_data.copy()
+    
+    print 'Boxcar smoothing ',  flat, ' now.\n'
+    kernel_size = 200 #size of boxcar kernel to convolve with image
+    boxcar_kernel = Box2DKernel(kernel_size)
+    image_pad = np.pad(image_masked,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
+    image_smooth = convolve_fft(image_pad,boxcar_kernel,boundary='fill',fill_value=0)
+    image_smooth_unpad = image_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
+
+    image_divided = flat_data / image_smooth_unpad
+
+    #plt.clf()
+    #plt.plot(image_divided[100,:])
+    #plt.show()
+
+    if flat.lower().__contains__("blue"):
+        diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
+    elif flat.lower().__contains__("red"):
+        diagnostic[0:len(image_divided[100,:]),15] = image_divided[100,:]
+    else:
+        print "Assuming we should put this colorless flat in blue spot in the diagnostics,\nwhich is column index 14."
+        diagnostic[0:len(image_divided[100,:]),14] = image_divided[100,:]
+
+
+    # Copy Header, write changes, and write file #
+    hdu = fits.getheader(flat)
+    Fix_Header(hdu)
+    hdu.append( ('FLATTYPE', 'BOXCAR','Kernel used to flatten'), useblanks= True, bottom= True )
+    hdu.append(('KERNEL',kernel_size,'Kernel size used'), useblanks= True, bottom= True )
+    NewHdu = fits.PrimaryHDU(data= image_divided, header= hdu)
+    norm_flat_name= check_file_exist('n'+flat)
+    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    
+    print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
+    return (norm_flat_name)
+
+# ============================================================================    
+
+def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
+    print 'Normalizing ', flat, 'by using multiple boxcars.'
+    flat_image = fits.getdata(flat)
+    quartz_data = flat_image[0,:,:] ###
+    hdu = fits.getheader(flat)
+    if adc_stat == None:
+        adc_stat = hdu['ADCSTAT']
+    print 'Using ADC status: ', adc_stat
+    if adc_stat == 'IN':
+        dome_flat_directory = '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/domeflats/ADC'
+        dome_flat_name = 'tb.DomeFlat_930_blue_adc.fits'
+    else:
+        dome_flat_directory = '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/domeflats/NOADC'
+        dome_flat_name = 'tb.DomeFlat_930_blue_noadc.fits'
+
+    print 'Masking littrow ghost.'
+    if flat.lower().__contains__("blue")== True:
+        littrow_exist = glob('littrow_ghost.txt')
+        if len(littrow_exist) == 1:
+            print 'littrow_ghost.txt file already exists. Using that for mask.'
+            littrow_ghost = np.genfromtxt('littrow_ghost.txt')
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+        else:
+            print 'Finding and saving littrow ghost location'
+            littrow_ghost = find_littrow(flat)
+            litt_low = int(littrow_ghost[0])
+            litt_hi = int(littrow_ghost[1])
+        quartzim_masked = quartz_data.copy()
+        rows = quartzim_masked.shape[0]
+        columns = np.arange(quartzim_masked.shape[1])
+        columns_littrow = np.linspace(litt_low,litt_hi,num=(litt_hi-litt_low)+1)
+        for x in np.arange(rows):
+            row_data = np.concatenate((quartz_data[x,litt_low-15:litt_low+1],quartz_data[x,litt_hi:litt_hi+16]))
+            columns_fit = np.concatenate((columns[litt_low-15:litt_low+1],columns[litt_hi:litt_hi+16]))
+            pol = np.polyfit(columns_fit,row_data,2)
+            polp = np.poly1d(pol)
+            #if (x > 80) and (x < 90):
+            #    plt.plot(columns_fit,row_data,'b+')
+            #    plt.plot(columns_fit,polp(columns_fit),'r')
+            #    plt.show()
+            if x == 100:
+                diagnostic[0:len(columns_fit),11] = columns_fit
+                diagnostic[0:len(row_data),12] = row_data
+                diagnostic[0:len(row_data),13] = polp(columns_fit)
+            quartzim_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
+    else:
+        #These are dummy values so we can concatenate below 
+        litt_low = 100
+        litt_hi = 99
+        image_masked = quartz_data.copy()
+    print 'Boxcar smoothing quartz flat with kernel of 20'
+    quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
+    quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
+
+    quartz_image_pad = np.pad(quartzim_masked,quartz_kernel_size,'mean',stat_length=10)
+    quartzim_smooth = convolve(quartz_image_pad,quartz_boxcar_kernel)
+    quartz_image_smooth_unpad = quartzim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
+
+    nQuartz20 = quartz_data / quartz_image_smooth_unpad
+
+    #############################
+    #Now do the same for the domeflat
+    #############################
+    print 'Starting dome flat portion'
+    getcwd = os.getcwd()
+    os.chdir(dome_flat_directory)
+    dome = fits.getdata(dome_flat_name)
+    domeim = dome[0,:,:]
+
+    #Replace littrow ghost with parabolic fit between edges
+    print 'Masking littrow ghost in dome flat'
+    domeim_masked = domeim.copy()
+    littrow_ghost_red = np.genfromtxt('littrow_ghost_red.txt')
+    litt_low_red = int(littrow_ghost_red[0])
+    litt_hi_red = int(littrow_ghost_red[1])
+    rows = domeim.shape[0]
+    columns = np.arange(domeim.shape[1])
+    columns_littrow_red = np.linspace(litt_low_red,litt_hi_red,num=(litt_hi_red-litt_low_red)+1)
+    columns_fit_red = np.linspace(litt_low_red-15,litt_hi_red+15,num=(litt_hi_red-litt_low_red)+31)
+    #print columns_fit_red
+    
+    for x in np.arange(rows):
+        #row_data = image[x,litt_low-15:litt_hi+16]
+        row_data_red = np.concatenate((domeim[x,litt_low_red-15:litt_low_red+1],domeim[x,litt_hi_red:litt_hi_red+16]))
+        columns_fit_red = np.concatenate((columns[litt_low_red-15:litt_low_red+1],columns[litt_hi_red:litt_hi_red+16]))
+        pol = np.polyfit(columns_fit_red,row_data_red,2)
+        polp = np.poly1d(pol)
+        #if (x > 80) and (x < 90):
+        #    plt.plot(columns_fit_red,row_data_red,'b+')
+        #    plt.plot(columns_fit_red,polp(columns_fit_red),'r')
+        #    plt.show()
+        domeim_masked[x,litt_low_red:litt_hi_red+1] = polp(columns_littrow_red)
+
+    #quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
+    #quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
+    #boxcar_kernel = Gaussian2DKernel(kernel_size)
+    print 'Boxcar smoothing dome flat with kernel of 20'
+    dome_image_pad = np.pad(domeim_masked,quartz_kernel_size,'mean',stat_length=10)
+    domeim_smooth = convolve(dome_image_pad,quartz_boxcar_kernel)
+    dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
+    
+    os.chdir(getcwd)
+
+    ####################
+    # Multiple nQuartz by dome_image_smooth_unpad
+    ####################
+    print 'Mutliplying the two flats.'
+    if hdu[config.camera_header] == config.red_cam_id:
+        print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
+        dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
+    nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
+
+
+    ####################
+    # Take nQB, fit a nth order poly, then smooth with boxcar 200
+    ####################
+    print 'Fitting 5th order polynomial'
+    order= 5;
+    nnQD = nQD.copy()
+    fit_data = np.median(nQD[95:105],axis=0)# Median of center Rows
+
+    X= range(0,len(fit_data)) # Column Numbers 
+    # Fit the data removeing the limits of the overscan regions and littrow ghost. #
+
+    # Calculate Fit # 
+    coeff= np.polyfit(X[650:], fit_data[650:], order ) # coefficents of polynomial fit # 
+    profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
+    #plt.clf()
+    #plt.plot(X[650:],fit_data[650:],'b')
+    #plt.plot(X,profile,'r')
+    #plt.plot(X[650:],fit_data[650:]/profile[650:])
+    #plt.show()
+    for row in nnQD:
+        i= 0; 
+        while i < len(row): 
+            row[i]= row[i]/profile[i]
+            i= i+1   
+    
+
+    if flat.lower().__contains__("blue"):
+        diagnostic[0:len(X[650:]),22] = X[650:]
+        diagnostic[0:len(fit_data[650:]),23] = fit_data[650:]
+        diagnostic[0:len(profile),24] = profile
+
+
+    #newim = fits.PrimaryHDU(data=nnQD,header=domehdu.header)
+    #newim.writeto('nnQD_blue.fits',clobber=True)
+    #exit()
+
+    finalim_masked = nnQD.copy()
+    rows = finalim_masked.shape[0]
+    columns = np.arange(finalim_masked.shape[1])
+    columns_littrow = np.linspace(litt_low,litt_hi,num=(litt_hi-litt_low)+1)
+    for x in np.arange(rows):
+        row_data = np.concatenate((nnQD[x,litt_low-15:litt_low+1],nnQD[x,litt_hi:litt_hi+16]))
+        columns_fit = np.concatenate((columns[litt_low-15:litt_low+1],columns[litt_hi:litt_hi+16]))
+        pol = np.polyfit(columns_fit,row_data,2)
+        polp = np.poly1d(pol)
+        #if (x > 80) and (x < 90):
+        #    plt.plot(columns_fit,row_data,'b+')
+        #    plt.plot(columns_fit,polp(columns_fit),'r')
+        #    plt.show()
+        finalim_masked[x,litt_low:litt_hi+1] = polp(columns_littrow)
+
+    print 'Boxcar smoothing with 200'
+    kernel_size = 200 #size of boxcar kernel to convolve with image
+    boxcar_kernel = Box2DKernel(kernel_size)
+
+    finalimage_pad = np.pad(finalim_masked,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
+    finalimage_smooth = convolve_fft(finalimage_pad,boxcar_kernel,boundary='fill',fill_value=0)
+    finalimage_smooth_unpad = finalimage_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
+    image_divided = nnQD / finalimage_smooth_unpad
+
+    #newim = fits.PrimaryHDU(data=image_divided,header=domehdu.header)
+    #newim.writeto('nnnQD_blue.fits',clobber=True)
+
+    ###############################
+    #Do a 200 pixel boxcar on the original quartz flat and use that for the first 760 pixels.
+    ###############################
+    flat_image = fits.getdata(flat)
+    flat_data = flat_image[0,:,:] ###
+    # Calculate Fit # 
+    fit_data = np.median(flat_data[95:105],axis=0)
+    X= range(0,len(fit_data)) # Column Numbers 
+    order = 3.
+    coeff= np.polyfit(X, fit_data, order ) # coefficents of polynomial fit # 
+    profile= np.poly1d(coeff)(X) # Profile Along Dispersion axis # 
+    #plt.clf()
+    #plt.plot(X[650:],fit_data[650:],'b')
+    #plt.plot(X,profile,'r')
+    #plt.plot(X[650:],fit_data[650:]/profile[650:])
+    #plt.show()
+    for row in flat_data:
+        i= 0; 
+        while i < len(row): 
+            row[i]= row[i]/profile[i]
+            i= i+1   
+
+    print 'Boxcar smoothing ',  flat, ' now.\n'
+    kernel_size = 200 #size of boxcar kernel to convolve with image
+    boxcar_kernel = Box2DKernel(kernel_size)
+
+    image_pad = np.pad(flat_data,kernel_size,'mean',stat_length=40) #Pad to reduce edge effects
+    image_smooth = convolve_fft(image_pad,boxcar_kernel,boundary='fill',fill_value=0)
+    image_smooth_unpad = image_smooth[kernel_size:(-1*kernel_size),kernel_size:(-1*kernel_size)]
+
+    image_divided_quartz = flat_data / image_smooth_unpad
+    
+
+    ###############################
+    #Stictch the two images together
+    ###############################
+    print 'Stitching images together.'
+    try:
+        stitchloc_temp = np.genfromtxt('stitch_location.txt')
+        stitchloc = float(stitchloc_temp)
+        print 'Found stitch_location.txt file. Using ', stitchloc, ' for stitching location.'
+    except:
+        stitchloc = 747.
+        print 'No file found. Using ', stitchloc, ' for stitching location.'
+    leftside = image_divided_quartz[:,:stitchloc]
+    rightside = image_divided[:,stitchloc:]
+
+    newimage = np.concatenate((leftside,rightside),axis=1)
+
+
+    if flat.lower().__contains__("blue"):
+        diagnostic[0:len(newimage[100,:]),14] = newimage[100,:]
+
+    # Copy Header, write changes, and write file #
+    hdu = fits.getheader(flat)
+    Fix_Header(hdu)
+    hdu.append( ('FLATTYPE', 'BOXCAR','Kernel used to flatten'), useblanks= True, bottom= True )
+    hdu.append(('KERNEL',kernel_size,'Kernel size used'), useblanks= True, bottom= True )
+    hdu.append(('DOMEFLAT',dome_flat_name,'Dome Flat used'), useblanks= True, bottom= True )
+    hdu.append(('STITCHLO',stitchloc,'Stitch location between flats'), useblanks= True, bottom= True )
+    NewHdu = fits.PrimaryHDU(data= newimage, header= hdu)
+    norm_flat_name= check_file_exist('n'+flat)
+    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    
+    print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
     return (norm_flat_name)
 
 
