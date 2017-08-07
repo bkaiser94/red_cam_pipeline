@@ -33,7 +33,6 @@ if config.cautious:
 #Begin Fits Reduction
 #=========================
 ReduceSpec.reduce_now(['script_name','listZero','listFlat','listSpec','listFe'])
-to_flux= False
 
 #========================
 #Begin Spectral Extraction
@@ -178,10 +177,10 @@ continuum_files = sorted(continuum_files)
 '''
 stdlist = None
 fluxlist = None
-if to_flux:
+if config.to_flux:
     flux_calibration.flux_calibrate_now(stdlist,fluxlist,continuum_files,extinct_correct=True,masterresp=True)
-if not to_flux:
-    print "Not Flux calibrating since to_flux: " , to_flux
+if not config.to_flux:
+    print "Not Flux calibrating since to_flux: " , config.to_flux
 
 #=========================
 #Begin Flux Calibration
