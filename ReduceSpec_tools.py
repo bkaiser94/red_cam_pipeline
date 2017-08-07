@@ -1210,6 +1210,7 @@ def imcombine(im_list, output_name, method,
         #   axis[0] has length of number of images.
         #   axis[1] is the vertical axis of the chip.
         #   axis[2] is the horizontal axis of the chip.
+        print "fits file to be assessed: " + im_list[i]
         if i == 0:  
             img_data = fits.getdata(im_list[i])
             #n,Ny,Nx = np.shape(img_data)
@@ -1276,6 +1277,7 @@ def imcombine(im_list, output_name, method,
                 diagnostic[0:len(avgarr),5] = avgarr
                 diagnostic[0:len(stdarr),6] = stdarr
     except:
+        print "skipped something in the the diagnostic writing"
         pass
     ## Combine the images acording to input "method" using SigmaClip() above ## 
     comb_img = np.ndarray( shape= (1,Ny,Nx), dtype='float32')
