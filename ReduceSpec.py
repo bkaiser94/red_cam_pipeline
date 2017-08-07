@@ -129,6 +129,7 @@ def reduce_now(args):
     i= 0
     while i < nf:
         tcomb_flat.append(rt.Trim_Spec(comb_flat[i])) 
+        print "trimmed flat dimensions of " + comb_flat[i] + " : ", tcomb_flat[i]
         i= i+1
               
     '''
@@ -146,6 +147,7 @@ def reduce_now(args):
     nb_flat= []
     while i < nf:
         if 'blue' in tcomb_flat[i].lower():
+            print "filename that supposedly has blue: " + tcomb_flat[i].lower()
             nb_flat.append(rt.Norm_Flat_Boxcar_Multiples(tcomb_flat[i],adc_stat=adc_status))
         elif 'quartz' in tcomb_flat[i].lower():
             nb_flat.append( rt.Norm_Flat_Poly(tcomb_flat[i],4.) )

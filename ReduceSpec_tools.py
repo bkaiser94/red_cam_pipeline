@@ -455,7 +455,10 @@ def lacosmic(img):
     array = data2
     header = fits.getheader(img)
     Fix_Header(header) 
-    gain = 1.33 #datalist[0].header['GAIN'] #1.33 from 2017-06-07
+    if header[config.camera_header] == config.blue_cam_id:
+        gain = 1.33 #datalist[0].header['GAIN'] #1.33 from 2017-06-07
+    elif header[config.camera_header] == config.red_cam_id:
+        gain = datalist[0].header['GAIN']
     rdnoise = datalist[0].header['RDNOISE']
 
     c = cosmics.cosmicsimage(array, gain=gain, readnoise=rdnoise, sigclip = 5.0, sigfrac = 0.5, objlim = 4.0,satlevel=45000.0,verbose=True)
