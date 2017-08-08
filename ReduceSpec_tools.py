@@ -341,45 +341,84 @@ def Trim_Spec(img):
             break
         except KeyError:
             pass
-    if length == 2071.:
-        #img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
-                #useblanks= True, bottom= True )
+    for attempt in config.binning_headers:
         try:
-            cam_id= img_head[config.camera_header]
+            binning = int(img_head[attempt])
+            break
         except KeyError:
-            print "Unable to locate " + config.camera_header + " in the headers of " + img
-            print "We're going to try blue camera indices."
-            cam_id = config.blue_cam_id
-        if cam_id == config.blue_cam_id:
-            try:
-                img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
-                useblanks= True, bottom= True )
-                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
-            except IndexError:
-                print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
-                cam_id = config.red_cam_id
-        elif cam_id == config.red_cam_id:
-            if img.lower().__contains__('flat'):
-                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-            else:
-                img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
-                #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
-                NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
-        new_file_name= check_file_exist('t'+img)
-        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-        print "writing trimmed image to " +new_file_name
-        return (new_file_name)
-    elif length == 4142.:
-        print "pixel length interpreted as 4142"
-        img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
-                useblanks= True, bottom= True )
-        NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
-        new_file_name= check_file_exist('t'+img)
-        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
-        return (new_file_name)
-    else:
-        print 'WARNING. Image not trimmed. \n'
+            pass
+    def trimval(camtrim, upper):
+        """ takes the config file trim values and scales them to the appropriate values for the camera binning"""
+        if upper:
+            return (2/binning)*camtrim
+        elif not upper:
+            return ((2/binning)*camtrim + 1/binning)
+    try:
+        cam_id= img_head[config.camera_header]
+    except KeyError:
+        print "Unable to locate " + config.camera_header + " in the headers of " + img
+        print "We're going to try blue camera indices."
+        cam_id = config.blue_cam_id
+    if cam_id == config.blue_cam_id:
+        try:
+            img_head.append( ('CCDSEC', '['+str(trimval(config.blue_cam_lotrim,False)) +':' + str(trimval(config.blue_cam_hightrim,True))+ ',1:200]' ,'Original Pixel Indices'),
+            useblanks= True, bottom= True )
+            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, trimval(config.blue_cam_lotrim,False): trimval(config.blue_cam_hightrim, True)], header= img_head) #works for blue camera
+        except IndexError:
+            print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
+            cam_id = config.red_cam_id
+    elif cam_id == config.red_cam_id:
+        if img.lower().__contains__('flat'):
+            img_head.set('CCDSEC', '['+ str(trimval(config.red_cam_lotrim,False))+ ':' + str(trimval(config.red_cam_hightrim, True))+ ',1:200]', 'Original Pixel Indices')
+            NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, trimval(config.red_cam_lotrim, False) : trimval(config.red_cam_hightrim, True)], header= img_head) #works for red camera
+        else:
+            img_head.set('CCDSEC', '['+ str(trimval(config.red_cam_lotrim,False))+ ':' + str(trimval(config.red_cam_hightrim,True))+ ',1:200]', 'Original Pixel Indices')
+            #justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
+            NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, trimval(config.red_cam_lotrim, False) : trimval(config.red_cam_hightrim, True)], header= img_head) #works for red camera
+    new_file_name= check_file_exist('t'+img)
+    NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+    print "writing trimmed image to " +new_file_name
+    return (new_file_name)
+        
+    #if length == 2071.:
+        ##img_head.append( ('CCDSEC', '[9:2055,1:200]' ,'Original Pixel Indices'),
+                ##useblanks= True, bottom= True )
+        #try:
+            #cam_id= img_head[config.camera_header]
+        #except KeyError:
+            #print "Unable to locate " + config.camera_header + " in the headers of " + img
+            #print "We're going to try blue camera indices."
+            #cam_id = config.blue_cam_id
+        #if cam_id == config.blue_cam_id:
+            #try:
+                #img_head.append( ('CCDSEC', '['+str(config.blue_cam_lotrim) +':' + str(config.blue_cam_hightrim)+ ',1:200]' ,'Original Pixel Indices'),
+                #useblanks= True, bottom= True )
+                #NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.blue_cam_lotrim: config.blue_cam_hightrim], header= img_head) #works for blue camera
+            #except IndexError:
+                #print "Looks like it wasn't the blue cam after all, so looks like we'll try red..."
+                #cam_id = config.red_cam_id
+        #elif cam_id == config.red_cam_id:
+            #if img.lower().__contains__('flat'):
+                #img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                #NewHdu = fits.PrimaryHDU(data= img_data[:,1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+            #else:
+                #img_head.set('CCDSEC', '['+ str(config.red_cam_lotrim)+ ':' + str(config.red_cam_hightrim)+ ',1:200]', 'Original Pixel Indices')
+                ##justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
+                #NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
+        #new_file_name= check_file_exist('t'+img)
+        #NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        #print "writing trimmed image to " +new_file_name
+        #return (new_file_name)
+    #elif length == 4142.:
+        #print "pixel length interpreted as 4142"
+        #img_head.append( ('CCDSEC', '[19:4111,1:200]' ,'Original Pixel Indices'),
+                #useblanks= True, bottom= True )
+        #NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
+        #new_file_name= check_file_exist('t'+img)
+        #NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        #return (new_file_name)
+    #else:
+        #print 'WARNING. Image not trimmed. \n'
 
 def Add_Scale (img_block):
     # Function to be called by Imcombine. 
