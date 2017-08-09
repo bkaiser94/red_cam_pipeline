@@ -1354,7 +1354,14 @@ def imcombine(im_list, output_name, method,
             print "median combine"
             counts = np.copy(img_block)
             clipped_sig= SigClip(counts, lo_sig, hi_sig)
+            plt.imshow(clipped_sig[0])
+            plt.title('clipped_sig[0]')
+            plt.show()
             val = np.median( clipped_sig[~np.isnan(clipped_sig)], axis=0 )
+            print "val.shape: ", val.shape
+            plt.imshow(val)
+            plt.title('val')
+            plt.show()
             comb_img[0,:,:] = np.copy(val)
             #for y in range(0,Ny):
                 #for x in range(0,Nx):
