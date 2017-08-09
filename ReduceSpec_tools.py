@@ -261,7 +261,9 @@ def SigClip(data_set, lo_sig, hi_sig):
     #St_Dev = np.std(remove_max)
     def make_work(val_arr):
         val_arr= np.tile(val_arr, data_set.shape[0])
+        print "shape: ", val_arr.shape
         val_arr= np.reshape(val_arr, data_set.shape[0])
+        print "shape: ", val_arr.shape, "\n=========="
     St_Dev = np.std(data_set, axis = 0)
     min_val = Avg-lo_sig*St_Dev
     max_val = Avg+hi_sig*St_Dev
