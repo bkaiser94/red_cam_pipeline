@@ -732,9 +732,9 @@ def Norm_Flat_Boxcar( flat ):
     print 'Normalizing ', flat , 'by boxcar smoothing'
     flat_image = fits.getdata(flat)
     if len(flat_image.shape) == 3:
-        flat_data = flat_image[0,:,:] ###
+        flat_data = np.copy(flat_image[0,:,:]) ###
     elif len(flat_image.shape) == 2:
-        flat_data = flat_image[:,:] ###
+        flat_data = np.copy(flat_image[:,:]) ###
     #See if littrow ghost file already exists for blue files
     if flat.lower().__contains__("blue")== True:
         littrow_exist = glob('littrow_ghost.txt')
@@ -812,7 +812,7 @@ def Norm_Flat_Boxcar( flat ):
 def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     print 'Normalizing ', flat, 'by using multiple boxcars.'
     flat_image = fits.getdata(flat)
-    quartz_data = flat_image[0,:,:] ###
+    quartz_data = np.copy(flat_image[0,:,:]) ###
     hdu = fits.getheader(flat)
     if adc_stat == None:
         adc_stat = hdu['ADCSTAT']
@@ -874,50 +874,52 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     #Now do the same for the domeflat
     #############################
     print 'Starting dome flat portion'
-    getcwd = os.getcwd()
-    os.chdir(dome_flat_directory)
-    dome = fits.getdata(dome_flat_name)
-    domeim = dome[0,:,:]
+    if hdu[config.camera_header] == config.blue_cam_id:
+        print "blue cam, so we're gonna do all the domeflat shenanigans."
+        getcwd = os.getcwd()
+        os.chdir(dome_flat_directory)
+        dome = fits.getdata(dome_flat_name)
+        domeim = dome[0,:,:]
 
-    #Replace littrow ghost with parabolic fit between edges
-    print 'Masking littrow ghost in dome flat'
-    domeim_masked = domeim.copy()
-    littrow_ghost_red = np.genfromtxt('littrow_ghost_red.txt')
-    litt_low_red = int(littrow_ghost_red[0])
-    litt_hi_red = int(littrow_ghost_red[1])
-    rows = domeim.shape[0]
-    columns = np.arange(domeim.shape[1])
-    columns_littrow_red = np.linspace(litt_low_red,litt_hi_red,num=(litt_hi_red-litt_low_red)+1)
-    columns_fit_red = np.linspace(litt_low_red-15,litt_hi_red+15,num=(litt_hi_red-litt_low_red)+31)
-    #print columns_fit_red
-    
-    for x in np.arange(rows):
-        #row_data = image[x,litt_low-15:litt_hi+16]
-        row_data_red = np.concatenate((domeim[x,litt_low_red-15:litt_low_red+1],domeim[x,litt_hi_red:litt_hi_red+16]))
-        columns_fit_red = np.concatenate((columns[litt_low_red-15:litt_low_red+1],columns[litt_hi_red:litt_hi_red+16]))
-        pol = np.polyfit(columns_fit_red,row_data_red,2)
-        polp = np.poly1d(pol)
-        #if (x > 80) and (x < 90):
-        #    plt.plot(columns_fit_red,row_data_red,'b+')
-        #    plt.plot(columns_fit_red,polp(columns_fit_red),'r')
-        #    plt.show()
-        domeim_masked[x,litt_low_red:litt_hi_red+1] = polp(columns_littrow_red)
+        #Replace littrow ghost with parabolic fit between edges
+        print 'Masking littrow ghost in dome flat'
+        domeim_masked = domeim.copy()
+        littrow_ghost_red = np.genfromtxt('littrow_ghost_red.txt')
+        litt_low_red = int(littrow_ghost_red[0])
+        litt_hi_red = int(littrow_ghost_red[1])
+        rows = domeim.shape[0]
+        columns = np.arange(domeim.shape[1])
+        columns_littrow_red = np.linspace(litt_low_red,litt_hi_red,num=(litt_hi_red-litt_low_red)+1)
+        columns_fit_red = np.linspace(litt_low_red-15,litt_hi_red+15,num=(litt_hi_red-litt_low_red)+31)
+        #print columns_fit_red
+        
+        for x in np.arange(rows):
+            #row_data = image[x,litt_low-15:litt_hi+16]
+            row_data_red = np.concatenate((domeim[x,litt_low_red-15:litt_low_red+1],domeim[x,litt_hi_red:litt_hi_red+16]))
+            columns_fit_red = np.concatenate((columns[litt_low_red-15:litt_low_red+1],columns[litt_hi_red:litt_hi_red+16]))
+            pol = np.polyfit(columns_fit_red,row_data_red,2)
+            polp = np.poly1d(pol)
+            #if (x > 80) and (x < 90):
+            #    plt.plot(columns_fit_red,row_data_red,'b+')
+            #    plt.plot(columns_fit_red,polp(columns_fit_red),'r')
+            #    plt.show()
+            domeim_masked[x,litt_low_red:litt_hi_red+1] = polp(columns_littrow_red)
 
-    #quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
-    #quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
-    #boxcar_kernel = Gaussian2DKernel(kernel_size)
-    print 'Boxcar smoothing dome flat with kernel of 20'
-    dome_image_pad = np.pad(domeim_masked,quartz_kernel_size,'mean',stat_length=10)
-    domeim_smooth = convolve(dome_image_pad,quartz_boxcar_kernel)
-    dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
-    
-    os.chdir(getcwd)
+        #quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
+        #quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
+        #boxcar_kernel = Gaussian2DKernel(kernel_size)
+        print 'Boxcar smoothing dome flat with kernel of 20'
+        dome_image_pad = np.pad(domeim_masked,quartz_kernel_size,'mean',stat_length=10)
+        domeim_smooth = convolve(dome_image_pad,quartz_boxcar_kernel)
+        dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
+        
+        os.chdir(getcwd)
 
     ####################
     # Multiple nQuartz by dome_image_smooth_unpad
     ####################
     print 'Mutliplying the two flats.'
-    if hdu[config.camera_header] == config.red_cam_id:
+    elif hdu[config.camera_header] == config.red_cam_id:
         print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
         dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
     nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
@@ -989,7 +991,7 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     ###############################
     #Do a 200 pixel boxcar on the original quartz flat and use that for the first 760 pixels.
     ###############################
-    flat_image = fits.getdata(flat)
+    #flat_image = fits.getdata(flat)
     flat_data = flat_image[0,:,:] ###
     # Calculate Fit # 
     fit_data = np.median(flat_data[95:105],axis=0)
@@ -1040,7 +1042,7 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
         diagnostic[0:len(newimage[100,:]),14] = newimage[100,:]
 
     # Copy Header, write changes, and write file #
-    hdu = fits.getheader(flat)
+    #hdu = fits.getheader(flat)
     Fix_Header(hdu)
     hdu.append( ('FLATTYPE', 'BOXCAR','Kernel used to flatten'), useblanks= True, bottom= True )
     hdu.append(('KERNEL',kernel_size,'Kernel size used'), useblanks= True, bottom= True )
