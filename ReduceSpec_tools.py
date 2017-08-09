@@ -1149,7 +1149,7 @@ def find_littrow(flat):
     flat_head= fits.getheader(flat)
     fit_data= np.median(flat_data[0][95:105], axis=0) # Median of center Rows
     print "fit_data", fit_data
-    print "fit_data.shape: " fit_data.shape
+    print "fit_data.shape: ", fit_data.shape
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions. #
     if flat_head[config.camera_header] == config.blue_cam_id:
