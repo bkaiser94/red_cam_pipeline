@@ -33,7 +33,23 @@ import numpy as np
 import ReduceSpec_tools as rt
 import warnings
 import config
+import time
 
+start_time = time.time()
+prev_time= start_time
+
+def time_elapsed():
+    global prev_time
+    now= time.time()
+    def hms(totsec):
+        hours = int(totsec) /3600
+        minutes= int(totsec- hours*3600)/60
+        seconds= (totsec- hours*3600- minutes*60)
+        print "hours: " + str(hours), ", min: " + str(minutes)+ " , sec: " + str(seconds)
+    print "Since start: " , hms(now- start_time)
+    print ""
+    print "Since previous check: ", hms(now- prev_time)
+    prev_time = now
 # ===========================================================================
 # Code to Reduce Spectrum ===================================================
 # ===========================================================================
@@ -108,7 +124,7 @@ def reduce_now(args):
     # Combine Zeros # 
     comb_zero = rt.imcombine(zero_lists[0], zero_names[0], 'average', lo_sig= 10, 
                         hi_sig= 3, overwrite= overwrite)
-    
+    time_elapsed()
     # Bias Subtract Flats # 
     nf= len(flat_lists) # number of flats
     b_flat_lists= []
@@ -116,7 +132,7 @@ def reduce_now(args):
     while i < nf:
         b_flat_lists.append( rt.Bias_Subtract(flat_lists[i], comb_zero ) )
         i= i+1
-        
+    time_elapsed()
     # Combine Bias Subtracted Flats # 
     i= 0
     comb_flat= []
@@ -124,7 +140,7 @@ def reduce_now(args):
         comb_flat.append( rt.imcombine(b_flat_lists[i], 'b.'+flat_names[i], 'median', 
                         lo_sig= 10, hi_sig= 3, overwrite= overwrite) )
         i= i+1
-    
+    time_elapsed()
     #Trim flats#
     tcomb_flat = []
     i= 0
@@ -143,6 +159,7 @@ def reduce_now(args):
         #nb_flat.append(rt.Norm_Flat_Boxcar(nb_flat1[0]))
         i= i+1
     '''
+    time_elapsed()
     # Normalize Flat # 
     i= 0
     nb_flat= []
@@ -162,7 +179,8 @@ def reduce_now(args):
         i= i+1
 
 
-    # Bias Subtract Spec # 
+    # Bias Subtract Spec #
+    time_elapsed()
     i= 0
     b_spec_list= []
     nsp= len(spec_lists); # number of spectra
@@ -171,6 +189,7 @@ def reduce_now(args):
         i= i+1
     
     #Trim Spectra#
+    time_elapsed()
     tb_spec_list = []
     i= 0
     while i < nsp:
@@ -179,6 +198,7 @@ def reduce_now(args):
         i= i+1
                         
     # Flat Field Individual Spectra #
+    time_elapsed()
     blueindex = [i for i, s in enumerate(nb_flat) if 'blue' in s.lower()]
     if len(blueindex)>0:
         nbflatblue = nb_flat[blueindex[0]]
@@ -203,7 +223,7 @@ def reduce_now(args):
             ftb_spec_list.append( rt.Flat_Field(tb_spec_list[i], nb_flat[0]) )
             
         i= i+1
-
+    time_elapsed()
     # Save all diagnostic info
     rt.save_diagnostic()
     
@@ -219,7 +239,7 @@ def reduce_now(args):
             cftb_mask.append(lacos_mask)
             m += 1
         i += 1
-    
+    time_elapsed()
     cftb_spec_list = rt.List_Combe(cftb_spec)
     cftb_mask_list = rt.List_Combe(cftb_mask)
     print "cftb_spec_list: ", cftb_spec_list
@@ -234,7 +254,7 @@ def reduce_now(args):
                                            lo_sig= 10, hi_sig= 3, overwrite= overwrite,mask=cftb_mask_list[i]) )
         i= i+1
 
-     
+     time_elapsed()
     print "\n====================\n"
 
     #########################################
@@ -253,7 +273,7 @@ def reduce_now(args):
     while i < nf:
         rt.Trim_Spec(comb_lamp[i]); 
         i= i+1
- 
+    time_elapsed()
     ########################################
 
     print "Done. Ready for Apeture Extraction.\n"
