@@ -674,7 +674,10 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 coords= [] 
                 cid = fig.canvas.mpl_connect('button_press_event', onclick)
                 plt.show()
-                
+                print "len(coords): ", len(coords)
+                print "len(coords[0]): ", len(coords[0])
+                print "len(line_list): ", len(line_list)
+                print "len(line_list[1]): " , len(line_list[1])
                 k_line= find_near(coords[0][0], line_list[1]) # Nearest line to click cordinates
                 k_peak= find_near(coords[1][0], Wavelengths) # Nearest Peak to click cordinates
                 i_peak= Wavelengths.index(k_peak)
@@ -684,13 +687,22 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 offset= (k_line-center)
                 ##########
                 #Save the offset
+                unacceptable = True
+                while unacceptable:
                 print '\n Would you like to save the offset?'
                 save_offset = raw_input('yes/no? >>> ')
-                if save_offset == 'yes':
-                    print 'Saving offset to offsets.txt'
-                    g = open('offsets.txt','a')
-                    g.write(str(offset) + '\n')
-                    g.close()
+                    if save_offset.lower() in config.affirmatives:
+                        print 'Saving offset to offsets.txt'
+                        g = open('offsets.txt','a')
+                        g.write(str(offset) + '\n')
+                        g.close()
+                        unacceptable= False
+                    elif save_offset.lower() in config.negatives:
+                        print "So be it."
+                        unacceptable = False
+                    else:
+                        print "Invalid Input. Try again."
+                    
                 ##########
                 Wavelengths= [w+offset for w in Wavelengths]
                 
