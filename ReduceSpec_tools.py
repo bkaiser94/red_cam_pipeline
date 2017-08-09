@@ -256,20 +256,23 @@ def SigClip(data_set, lo_sig, hi_sig):
     # along with low and high sigma factors. 
     # Output is a list containg only the data that is with the sigma factors.
     # Only a single rejection iteration is made. 
-    Avg = np.median(data_set)
+    Avg = np.median(data_set, axis=0)
     #remove_max = np.delete(data_set,data_set.argmax())
     #St_Dev = np.std(remove_max)
-    St_Dev = np.std(data_set)
+    St_Dev = np.std(data_set, axis = 0)
     min_val = Avg-lo_sig*St_Dev
     max_val = Avg+hi_sig*St_Dev
-    cliped_data = []
+    #clipped_data = []
     #masked_data = []
-    for val in data_set:
-        if min_val <= val <= max_val:
-            cliped_data.append( val )
+    #for val in data_set:
+        #if min_val <= val <= max_val:
+            #cliped_data.append( val )
         #else:
         #    masked_data.append( val)
-    return cliped_data#, masked_data
+    clipped_data= np.copy(data_set)
+    out_of_bounds= np.where((data_set < min_val) or (data_set > max_val))
+    clipped_data[out_of_bounds]= np.nan #have to make sure to do nanmean or nanmedian when evaluating this now.
+    return clipped_data#, masked_data
         
 def RaDec2AltAz(ra, dec, lat, lst ):
     # Input: RA in decimal hours; DEC in decimal deg; 
@@ -1295,10 +1298,12 @@ def imcombine(im_list, output_name, method,
         Scale[:]= np.NaN
     
     # Print Name and Statistics of Each image % 
-    avgarr,stdarr = np.zeros(Ni), np.zeros(Ni)
+    #avgarr,stdarr = np.zeros(Ni), np.zeros(Ni)
+    avgarr= np.mean(img_block[:, 25:75, 1700:1800], axis= (1,2))
+    stdarr= np.std(img_block[:, 25:75, 1700:1800], axis = (1,2))
     for i in range(0,Ni):
-        Avg= np.mean(img_block[i,25:75,1700:1800])
-        Std= np.std(img_block[i,25:75,1700:1800])
+        #Avg= np.mean(img_block[i,25:75,1700:1800])
+        #Std= np.std(img_block[i,25:75,1700:1800])
         avgarr[i] = Avg
         stdarr[i] = Std
         print ( "%02d: %s ScaleValue:% .3f Mean: %.3f StDev: %.3f" 
@@ -1329,32 +1334,45 @@ def imcombine(im_list, output_name, method,
     while True: # Contunualy askes for method if input is wierd # 
         
         if method == 'median':
-            for y in range(0,Ny):
-                for x in range(0,Nx):
-                    counts = img_block[:,y,x]
-                    val = np.median( SigClip(counts, lo_sig, hi_sig) )
-                    comb_img[0,y,x] = np.float32(val)
+            counts = np.copy(img_block)
+            val = np.nanmedian( SigClip(counts, lo_sig, hi_sig), axis=0 )
+            comb_img[0,:,:] = np.copy(val)
+            #for y in range(0,Ny):
+                #for x in range(0,Nx):
+                    #counts = img_block[:,y,x]
+                    #val = np.median( SigClip(counts, lo_sig, hi_sig) )
+                    #comb_img[0,y,x] = np.float32(val)
             break # exit while loop 
     
         elif method == 'average':
-            for y in range(0,Ny):
-                for x in range(0,Nx):
-                    if (not mask) is False:
-                        counts = img_block[:,y,x]
-                        masks = mask_block[:,y,x].astype(bool)
-                        mx = np.ma.masked_array(counts,masks)
-                        val = mx.mean() #We don't want to sigma clip if already masking
-                        #if True in masks:
-                        #    print counts
-                        #    print masks
-                        #    print val
-                        #    print ''
-                    else:
-                        counts = img_block[:,y,x]
-                        #counts_good, counts_bad = SigClip(counts, lo_sig, hi_sig)
-                        val = np.average( SigClip(counts, lo_sig, hi_sig) )
-                        #val = np.average(counts_good)
-                    comb_img[0,y,x] = np.float32(val)
+            if (not mask) is False:
+                masks = mask_block.astype(bool)
+                counts= np.copy(img_block)
+                mx = np.ma.masked_array(counts,masks)
+                val = np.nanmean(mx, axis= 0) #We don't want to sigma clip if already masking
+            #for y in range(0,Ny):
+                #for x in range(0,Nx):
+                    #if (not mask) is False:
+                        #counts = img_block[:,y,x]
+                        #masks = mask_block[:,y,x].astype(bool)
+                        #mx = np.ma.masked_array(counts,masks)
+                        #val = mx.mean() #We don't want to sigma clip if already masking
+                        ##if True in masks:
+                        ##    print counts
+                        ##    print masks
+                        ##    print val
+                        ##    print ''
+                    #else:
+                        #counts = img_block[:,y,x]
+                        ##counts_good, counts_bad = SigClip(counts, lo_sig, hi_sig)
+                        #val = np.average( SigClip(counts, lo_sig, hi_sig) )
+                        ##val = np.average(counts_good)
+                    ##comb_img[0,y,x] = np.float32(val)
+            else:
+                counts= np.copy(img_block)
+                val= np.nanmean(SigClip(counts,lo_sig, hi_sig), axis=0)
+                
+            comb_img[0,:,:] = np.copy(val)
                     #mask = np.average(counts_bad)
                     #mask_img[0,y,x] = np.float32(mask)
             #mask_image = fits.PrimaryHDU(data=mask_img)
@@ -1363,11 +1381,14 @@ def imcombine(im_list, output_name, method,
             break # exit while loop
         
         elif method == 'sum':
-            for y in range(0,Ny):
-                for x in range(0,Nx):
-                    counts = img_block[:,y,x]
-                    val = np.sum( SigClip(counts, lo_sig, hi_sig) )
-                    comb_img[0,y,x] = np.float32(val)
+            counts = np.copy(img_block)
+            val = np.nansum( SigClip(counts, lo_sig, hi_sig), axis=0 )
+            comb_img[0,:,:] = np.copy(val)
+            #for y in range(0,Ny):
+                #for x in range(0,Nx):
+                    #counts = img_block[:,y,x]
+                    #val = np.sum( SigClip(counts, lo_sig, hi_sig) )
+                    #comb_img[0,y,x] = np.float32(val)
             #print img_block[:,100,50]
             #print comb_img[:,100,50]
             break # exit while loop
@@ -1382,7 +1403,7 @@ def imcombine(im_list, output_name, method,
     # Set NAN values to zero 
     comb_img[ np.isnan(comb_img) ] = np.float32(0)
     
-    ###### Calculate Effetive Airmass for combined image ######
+    ###### Calculate Effective Airmass for combined image ######
     # The EffAM value is writen into the header in the next section #
     print '\nCalculating Effective Airmass:'    
     
