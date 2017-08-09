@@ -1304,10 +1304,10 @@ def imcombine(im_list, output_name, method,
     for i in range(0,Ni):
         #Avg= np.mean(img_block[i,25:75,1700:1800])
         #Std= np.std(img_block[i,25:75,1700:1800])
-        avgarr[i] = Avg
-        stdarr[i] = Std
+        #avgarr[i] = Avg
+        #stdarr[i] = Std
         print ( "%02d: %s ScaleValue:% .3f Mean: %.3f StDev: %.3f" 
-                % (i, im_list[i], Scale[i], Avg, Std) )
+                % (i, im_list[i], Scale[i], avgarr[i], stdarr[i]) )
     
     #Save Values to diagnostic array
     try:
