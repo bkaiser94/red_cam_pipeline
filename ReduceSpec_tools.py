@@ -262,6 +262,7 @@ def SigClip(data_set, lo_sig, hi_sig):
     def make_work(val_arr):
         val_arr= np.tile(val_arr, data_set.shape[0])
         print "shape: ", val_arr.shape
+        print data_set.shape
         val_arr= np.reshape(val_arr, data_set.shape[0])
         print "shape: ", val_arr.shape, "\n=========="
     St_Dev = np.std(data_set, axis = 0)
