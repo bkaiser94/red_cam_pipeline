@@ -259,9 +259,14 @@ def SigClip(data_set, lo_sig, hi_sig):
     Avg = np.median(data_set, axis=0)
     #remove_max = np.delete(data_set,data_set.argmax())
     #St_Dev = np.std(remove_max)
+    def make_work(val_arr):
+        val_arr= np.tile(val_arr, data_set.shape[0])
+        val_arr= np.reshape(val_arr, data_set.shape[0])
     St_Dev = np.std(data_set, axis = 0)
     min_val = Avg-lo_sig*St_Dev
     max_val = Avg+hi_sig*St_Dev
+    min_val= make_work(min_val)
+    max_val= make_work(max_val)
     #clipped_data = []
     #masked_data = []
     #for val in data_set:
@@ -269,9 +274,13 @@ def SigClip(data_set, lo_sig, hi_sig):
             #cliped_data.append( val )
         #else:
         #    masked_data.append( val)
-    clipped_data= np.copy(data_set)
-    out_of_bounds= np.where((data_set < min_val) or (data_set > max_val))
-    clipped_data[out_of_bounds]= np.nan #have to make sure to do nanmean or nanmedian when evaluating this now.
+    #clipped_data= np.copy(data_set)
+    clipped_data= np.nan(data_set.shape)
+    hi_enough = np.where(data_set > min_val)
+    clipped_data[hi_enough] = data_set[hi_enough]
+    low_enough= np.where(data_set < max_val)
+    clipped_data[low_enough]= data_set[low_enough]
+     #have to make sure to do nanmean or nanmedian when evaluating this now.
     return clipped_data#, masked_data
         
 def RaDec2AltAz(ra, dec, lat, lst ):
