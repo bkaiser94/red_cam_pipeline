@@ -278,7 +278,8 @@ def SigClip(data_set, lo_sig, hi_sig):
         #else:
         #    masked_data.append( val)
     #clipped_data= np.copy(data_set)
-    clipped_data= np.nan(data_set.shape)
+    clipped_data= np.zeros(data_set.shape)
+    clipped_data[:,:,:]= np.nan
     hi_enough = np.where(data_set > min_val)
     clipped_data[hi_enough] = data_set[hi_enough]
     low_enough= np.where(data_set < max_val)
