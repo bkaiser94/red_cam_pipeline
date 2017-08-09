@@ -1359,7 +1359,7 @@ def imcombine(im_list, output_name, method,
             #val = np.nanmedian(clipped_sig, axis = 0) #solution when numpy is upgraded to 1.9 or later. Only line required other than then inserting this into the combined array
             #print "val: ", val
             #print "val.shape : ", val.shape
-            print "If this numpy version is 1.9 or later, we need to update the code since 1.8.2 doesn't have np.nanmedian... : ", np.__version___
+            print "If this numpy version is 1.9 or later, we need to update the code since 1.8.2 doesn't have np.nanmedian... : ", np.__version__
             #print "np.median(clipped_sig, axis =0): ", np.median(clipped_sig, axis=0)
             #comb_img[0,:,:] = np.copy(val)
             for y in range(0,Ny):
