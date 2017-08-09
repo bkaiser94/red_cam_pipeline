@@ -691,18 +691,18 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 while unacceptable:
                     print '\n Would you like to save the offset?'
                     save_offset = raw_input('yes/no? >>> ')
-                        if save_offset.lower() in config.affirmatives:
-                            print 'Saving offset to offsets.txt'
-                            g = open('offsets.txt','a')
-                            g.write(str(offset) + '\n')
-                            g.close()
-                            unacceptable= False
-                        elif save_offset.lower() in config.negatives:
-                            print "So be it."
-                            unacceptable = False
-                        else:
-                            print "Invalid Input. Try again."
-                    
+                    if save_offset.lower() in config.affirmatives:
+                        print 'Saving offset to offsets.txt'
+                        g = open('offsets.txt','a')
+                        g.write(str(offset) + '\n')
+                        g.close()
+                        unacceptable= False
+                    elif save_offset.lower() in config.negatives:
+                        print "So be it."
+                        unacceptable = False
+                    else:
+                        print "Invalid Input. Try again."
+                
                 ##########
                 Wavelengths= [w+offset for w in Wavelengths]
                 
