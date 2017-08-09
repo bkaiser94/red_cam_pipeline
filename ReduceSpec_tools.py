@@ -262,7 +262,7 @@ def SigClip(data_set, lo_sig, hi_sig):
     def make_work(val_arr):
         val_arr= np.tile(val_arr,data_set.shape[0])
         #print "shape: ", val_arr.shape
-        print data_set.shape
+        #print data_set.shape
         val_arr= np.reshape(val_arr, data_set.shape)
         #print "shape: ", val_arr.shape, "\n=========="
     St_Dev = np.std(data_set, axis = 0)
@@ -285,6 +285,7 @@ def SigClip(data_set, lo_sig, hi_sig):
     low_enough= np.where(data_set < max_val)
     clipped_data[low_enough]= data_set[low_enough]
      #have to make sure to do nanmean or nanmedian when evaluating this now.
+    print "clipped_data: ", clipped_data
     return clipped_data#, masked_data
         
 def RaDec2AltAz(ra, dec, lat, lst ):
@@ -1350,6 +1351,7 @@ def imcombine(im_list, output_name, method,
     while True: # Contunualy askes for method if input is wierd # 
         
         if method == 'median':
+            print "median combine"
             counts = np.copy(img_block)
             clipped_sig= SigClip(counts, lo_sig, hi_sig)
             val = np.median( clipped_sig[~np.isnan(clipped_sig)], axis=0 )
@@ -1362,6 +1364,7 @@ def imcombine(im_list, output_name, method,
             break # exit while loop 
     
         elif method == 'average':
+            print "average combine"
             if (not mask) is False:
                 masks = mask_block.astype(bool)
                 counts= np.copy(img_block)
