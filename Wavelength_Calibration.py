@@ -653,107 +653,115 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         
         #yn= 'yes'
         if yn== 'yes':
-            global ax, fig, coords
-            fig = plt.figure(1)
-            ax = fig.add_subplot(111)
-            ax.plot(Wavelengths, lamp_spec)
-            plt.hold('on')
-            for line in line_list[1]:
-                if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                    plt.axvline(line, color= 'r', linestyle= '--')
-            plt.title("First click known line(red), then click coresponding peak near center\n Then close graph.")
-            plt.xlabel("Wavelengths (Ang.)")
-            plt.ylabel("Counts")
-            if lamp.__contains__('blue'):
-                plt.xlim(4700.,4900.)
-            elif lamp.__contains__('red'):
-                plt.xlim(6920.,7170.)
-            plt.hold('off')
-            coords= [] 
-            cid = fig.canvas.mpl_connect('button_press_event', onclick)
-            plt.show()
-            
-            k_line= find_near(coords[0][0], line_list[1]) # Nearest line to click cordinates
-            k_peak= find_near(coords[1][0], Wavelengths) # Nearest Peak to click cordinates
-            i_peak= Wavelengths.index(k_peak)
-            X= Wavelengths[i_peak-7:i_peak+7]
-            Y= lamp_spec[i_peak-7:i_peak+7]
-            amp, center, width, b= fit_Gauss(X,Y)
-            offset= (k_line-center)
-            ##########
-            #Save the offset
-            print '\n Would you like to save the offset?'
-            save_offset = raw_input('yes/no? >>> ')
-            if save_offset == 'yes':
-                print 'Saving offset to offsets.txt'
-                g = open('offsets.txt','a')
-                g.write(str(offset) + '\n')
-                g.close()
-            ##########
-            Wavelengths= [w+offset for w in Wavelengths]
-            
-            plt.figure(1)
-            plt.plot(Wavelengths, lamp_spec)
-            plt.hold('on')
-            for line in line_list[1]:
-                if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                    plt.axvline(line, color= 'r', linestyle= '--')
-            plt.title("Offset Applied.")
-            plt.xlabel("Wavelengths (Ang.)")
-            plt.ylabel("Counts")
-            plt.hold('off')
-            plt.show()
-        else:
-            offset = 0.
+            safe_to_continue= False
+            while not safe_to_continue:
+                global ax, fig, coords
+                fig = plt.figure(1)
+                ax = fig.add_subplot(111)
+                ax.plot(Wavelengths, lamp_spec)
+                plt.hold('on')
+                for line in line_list[1]:
+                    if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                        plt.axvline(line, color= 'r', linestyle= '--')
+                plt.title("First click known line(red), then click coresponding peak near center\n Then close graph.")
+                plt.xlabel("Wavelengths (Ang.)")
+                plt.ylabel("Counts")
+                if lamp.__contains__('blue'):
+                    plt.xlim(4700.,4900.)
+                elif lamp.__contains__('red'):
+                    plt.xlim(6920.,7170.)
+                plt.hold('off')
+                coords= [] 
+                cid = fig.canvas.mpl_connect('button_press_event', onclick)
+                plt.show()
+                
+                k_line= find_near(coords[0][0], line_list[1]) # Nearest line to click cordinates
+                k_peak= find_near(coords[1][0], Wavelengths) # Nearest Peak to click cordinates
+                i_peak= Wavelengths.index(k_peak)
+                X= Wavelengths[i_peak-7:i_peak+7]
+                Y= lamp_spec[i_peak-7:i_peak+7]
+                amp, center, width, b= fit_Gauss(X,Y)
+                offset= (k_line-center)
+                ##########
+                #Save the offset
+                print '\n Would you like to save the offset?'
+                save_offset = raw_input('yes/no? >>> ')
+                if save_offset == 'yes':
+                    print 'Saving offset to offsets.txt'
+                    g = open('offsets.txt','a')
+                    g.write(str(offset) + '\n')
+                    g.close()
+                ##########
+                Wavelengths= [w+offset for w in Wavelengths]
+                
+                plt.figure(1)
+                plt.plot(Wavelengths, lamp_spec)
+                plt.hold('on')
+                for line in line_list[1]:
+                    if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                        plt.axvline(line, color= 'r', linestyle= '--')
+                plt.title("Offset Applied.")
+                plt.xlabel("Wavelengths (Ang.)")
+                plt.ylabel("Counts")
+                plt.hold('off')
+                plt.show()
+            else:
+                offset = 0.
 
-    # Ask Refit # ===============================================================
-    yn= 'yes'
-    while yn== 'yes':   
-  
-        #print "\nWould you like to refit and recalculate dispersion?" 
-        #yn= raw_input('yes/no? >>> ')
-        yn = 'yes'
-        if yn== 'yes' :
-            #print "\nOffset to apply to Grating Angle?"
-            #alpha_offset= float( raw_input('Offset Value? >>>') )
-            alpha_offset = 0.
-            #alpha= alpha + alpha_offset
-            '''
-            #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
-            fig = plt.figure(1)
-            ax = fig.add_subplot(111)
-            ax.plot(Wavelengths, lamp_spec)
-            plt.hold('on')
-            lines_in_range= []
-            for line in line_list[1]:
-                if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                    lines_in_range.append(line)
-                    plt.axvline(line, color= 'r', linestyle= '--')
-            plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
-            plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
-            plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
-            plt.xlabel("Wavelengths (Ang.)")
-            plt.ylabel("Counts")
-            plt.hold('off')
-            coords= [] 
-            cid = fig.canvas.mpl_connect('button_press_event', onclick)
-            plt.show()    
-            '''
-            ###n_pnt, n_cor= np.shape(coords)
-            ###coord_x= [coords[i][0] for i in range(0,n_pnt)]
-            coord_x = line_list[1] #Use all lines in the line lists for the refitting.
-            n_pnt = len(coord_x)
-            
-            peak_x= []
-            new_waves= []
-            for i in range(0,n_pnt):
-                x= find_near(coord_x[i], Wavelengths)
-                #print "Wavelengths: ", Wavelengths
-                print "searched coord: ", coord_x[i]
-                print "found coord: ", x
-                peak_x.append(x)
-            peak_x, known_waves= remove_edge_calibrations(peak_x, Wavelengths, coord_x)
-            centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
+        # Ask Refit # ===============================================================
+        yn= 'yes'
+        while yn== 'yes':   
+    
+            #print "\nWould you like to refit and recalculate dispersion?" 
+            #yn= raw_input('yes/no? >>> ')
+            yn = 'yes'
+            if yn== 'yes' :
+                #print "\nOffset to apply to Grating Angle?"
+                #alpha_offset= float( raw_input('Offset Value? >>>') )
+                alpha_offset = 0.
+                #alpha= alpha + alpha_offset
+                '''
+                #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
+                fig = plt.figure(1)
+                ax = fig.add_subplot(111)
+                ax.plot(Wavelengths, lamp_spec)
+                plt.hold('on')
+                lines_in_range= []
+                for line in line_list[1]:
+                    if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                        lines_in_range.append(line)
+                        plt.axvline(line, color= 'r', linestyle= '--')
+                plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
+                plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
+                plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
+                plt.xlabel("Wavelengths (Ang.)")
+                plt.ylabel("Counts")
+                plt.hold('off')
+                coords= [] 
+                cid = fig.canvas.mpl_connect('button_press_event', onclick)
+                plt.show()    
+                '''
+                ###n_pnt, n_cor= np.shape(coords)
+                ###coord_x= [coords[i][0] for i in range(0,n_pnt)]
+                coord_x = line_list[1] #Use all lines in the line lists for the refitting.
+                n_pnt = len(coord_x)
+                peak_x= []
+                new_waves= []
+                for i in range(0,n_pnt):
+                    x= find_near(coord_x[i], Wavelengths)
+                    #print "Wavelengths: ", Wavelengths
+                    print "searched coord: ", coord_x[i]
+                    print "found coord: ", x
+                    peak_x.append(x)
+                peak_x, known_waves= remove_edge_calibrations(peak_x, Wavelengths, coord_x)
+                try:
+                    centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
+                    safe_to_continue= True
+                except RuntimeError as error:
+                    print "RuntimeError: ", error
+                    print "Try offsetting again... hopefully it works now, or else we'll be here awhile."
+                    print "This offset retrying loop doesn't terminate, so you need to control-c if this is getting excessive."
+                    safe_to_continue= False
             centers_in_wave= [w-offset for w in centers_in_wave]
             centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
     
