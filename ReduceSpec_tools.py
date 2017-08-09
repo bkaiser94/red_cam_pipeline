@@ -1354,6 +1354,7 @@ def imcombine(im_list, output_name, method,
             clipped_sig= SigClip(counts, lo_sig, hi_sig)
             print "clipped_sig: ", clipped_sig
             print "clipped_sig.shape: ", clipped_sig.shape
+            print "clipped_sig[~np.isnan(clipped_sig)].shape: ", clipped_sig[~np.isnan(clipped_sig)].shape
             val = np.median( clipped_sig[~np.isnan(clipped_sig)], axis=0 )
             print "val: ", val
             print "val.shape : ", val.shape
@@ -1361,6 +1362,8 @@ def imcombine(im_list, output_name, method,
             comb_img[0,:,:] = np.copy(val)
             #for y in range(0,Ny):
                 #for x in range(0,Nx):
+                    #mini_clip= clipped_sig[:, y, x]
+                    #val = np.median( mini_clip[~np.isnan(mini_clip)], axis=0 )
                     #counts = img_block[:,y,x]
                     #val = np.median( SigClip(counts, lo_sig, hi_sig) )
                     #comb_img[0,y,x] = np.float32(val)
