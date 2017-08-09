@@ -1357,6 +1357,7 @@ def imcombine(im_list, output_name, method,
             val = np.median( clipped_sig[~np.isnan(clipped_sig)], axis=0 )
             print "val: ", val
             print "val.shape : ", val.shape
+            print "np.median(clipped_sig): ", np.median(clipped_sig)
             comb_img[0,:,:] = np.copy(val)
             #for y in range(0,Ny):
                 #for x in range(0,Nx):
