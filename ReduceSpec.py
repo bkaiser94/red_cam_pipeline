@@ -254,7 +254,7 @@ def reduce_now(args):
                                            lo_sig= 10, hi_sig= 3, overwrite= overwrite,mask=cftb_mask_list[i]) )
         i= i+1
 
-     time_elapsed()
+    time_elapsed()
     print "\n====================\n"
 
     #########################################
