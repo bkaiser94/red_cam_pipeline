@@ -563,6 +563,8 @@ def remove_edge_calibrations(peak_w, Wavelen,coord_x, edgebuffer= 10):
 
 def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     # Read Lamp Data and Header # 
+    #Create array to save data for diagnostic purposes
+    global savearray, n_fr, n_fd, n_zPnt
     lamp_data= fits.getdata(lamp)
     lamp_header= fits.getheader(lamp)
     
@@ -622,6 +624,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     if offset_file:
         print 'Using offset file: ', offset_file
         offsets = np.genfromtxt(offset_file,dtype='d')
+        print "lamp_file: ", lamp
         if offsets.size == 1:
             offsets = np.array([offsets])
         #print offsets
@@ -784,8 +787,8 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                     #known_waves.append(x)
                 #known_waves= remove_edge_calibrations(known_waves, line_list[1])
 
-                #Create array to save data for diagnostic purposes
-                global savearray, n_fr, n_fd, n_zPnt
+                ##Create array to save data for diagnostic purposes
+                #global savearray, n_fr, n_fd, n_zPnt
                 savearray = np.zeros([len(Wavelengths),8])
                 #n_fr, n_fd, n_zPnt= fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm)
                 par, rmsfit = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
@@ -804,9 +807,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                     plt.ylabel("Counts")
                     plt.hold('off')
                 
-                savearray[0:len(n_Wavelengths),2] = n_Wavelengths
-                savearray[0:len(lamp_spec),3] = lamp_spec
-                savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
+                #savearray[0:len(n_Wavelengths),2] = n_Wavelengths
+                #savearray[0:len(lamp_spec),3] = lamp_spec
+                #savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
             
 
                 '''   
@@ -827,6 +830,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                     yn = 'yes'
                 else:
                     yn = 'no' #Don't refit again
+    savearray[0:len(n_Wavelengths),2] = n_Wavelengths
+    savearray[0:len(lamp_spec),3] = lamp_spec
+    savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
 
     # Save parameters in header and write file # 
     #print "\nWrite solution to header?"
