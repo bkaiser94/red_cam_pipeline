@@ -717,8 +717,8 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 plt.ylabel("Counts")
                 plt.hold('off')
                 plt.show()
-            else:
-                offset = 0.
+        else:
+            offset = 0.
 
         # Ask Refit # ===============================================================
         yn= 'yes'
@@ -774,6 +774,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                     print "Try offsetting again... hopefully it works now, or else we'll be here awhile."
                     print "This offset retrying loop doesn't terminate, so you need to control-c if this is getting excessive."
                     safe_to_continue= False
+            print "Made it past the try-except statement"
             centers_in_wave= [w-offset for w in centers_in_wave]
             centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
     
@@ -818,14 +819,14 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             '''
 
             plt.show()
-        if ('blue' in lamp.lower()) and (rmsfit > 1.0):
-            coord_list_short = line_list[0][1:]
-            wave_list_short = line_list[1][1:]
-            line_list = np.array([coord_list_short,wave_list_short])
-            print 'Refitting without first line.'
-            yn = 'yes'
-        else:
-            yn = 'no' #Don't refit again
+            if ('blue' in lamp.lower()) and (rmsfit > 1.0):
+                coord_list_short = line_list[0][1:]
+                wave_list_short = line_list[1][1:]
+                line_list = np.array([coord_list_short,wave_list_short])
+                print 'Refitting without first line.'
+                yn = 'yes'
+            else:
+                yn = 'no' #Don't refit again
 
     # Save parameters in header and write file # 
     #print "\nWrite solution to header?"
