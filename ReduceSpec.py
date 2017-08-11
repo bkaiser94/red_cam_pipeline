@@ -47,7 +47,7 @@ def time_elapsed():
         seconds= (totsec- hours*3600- minutes*60)
         print "hours: " + str(hours), ", min: " + str(minutes)+ " , sec: " + str(seconds)
     print "Since start: " , hms(now- start_time)
-    print ""
+    print " "
     print "Since previous check: ", hms(now- prev_time)
     prev_time = now
 # ===========================================================================
