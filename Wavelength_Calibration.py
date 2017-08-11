@@ -725,8 +725,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
 
         # Ask Refit # ===============================================================
     yn= 'yes'
-    safe_to_continue= False
-    while (yn== 'yes'):   
+    while (yn== 'yes'):
+        safe_to_continue= False
+
 
         #print "\nWould you like to refit and recalculate dispersion?" 
         #yn= raw_input('yes/no? >>> ')
