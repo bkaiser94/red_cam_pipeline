@@ -128,9 +128,11 @@ for x in lamp_files:
                 else:
                     plotalot = False
                 Wavelength_Calibration.calibrate_now(x,y,'no',config.zzceti,offset_file,plotall=plotalot)
-        except NameError:
+        except NameError as nameeerror:
             #protects from the lamp_color not getting assigned in those if statements up there
+            print "NameError: ", nameerror
             print "still no colors in files for like the 200th time."
+            print "Filename that has no colors: ", y
             if offset_file== None:
                 plotalot= True
             else:

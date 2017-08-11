@@ -650,186 +650,196 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         plt.hold('off')
         plt.show()
         
-        safe_to_continue= False
-        while not safe_to_continue:
-            print "while loop not safe_to_continue: ", not safe_to_continue
-            print "\nWould You like to set Offset?" 
-            yn= raw_input('yes/no? >>> ')
-        
-        #yn= 'yes'
-            if yn== 'yes':
-                global ax, fig, coords
-                fig = plt.figure(1)
-                ax = fig.add_subplot(111)
-                ax.plot(Wavelengths, lamp_spec)
-                plt.hold('on')
-                for line in line_list[1]:
-                    if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                        plt.axvline(line, color= 'r', linestyle= '--')
-                plt.title("First click known line(red), then click coresponding peak near center\n Then close graph.")
-                plt.xlabel("Wavelengths (Ang.)")
-                plt.ylabel("Counts")
-                if lamp.__contains__('blue'):
-                    plt.xlim(4700.,4900.)
-                elif lamp.__contains__('red'):
-                    plt.xlim(6920.,7170.)
-                plt.hold('off')
-                coords= [] 
-                cid = fig.canvas.mpl_connect('button_press_event', onclick)
-                plt.show()
-                print "len(coords): ", len(coords)
-                print "len(coords[0]): ", len(coords[0])
-                print "len(line_list): ", len(line_list)
-                print "len(line_list[1]): " , len(line_list[1])
-                k_line= find_near(coords[0][0], line_list[1]) # Nearest line to click cordinates
-                k_peak= find_near(coords[1][0], Wavelengths) # Nearest Peak to click cordinates
-                i_peak= Wavelengths.index(k_peak)
-                X= Wavelengths[i_peak-7:i_peak+7]
-                Y= lamp_spec[i_peak-7:i_peak+7]
-                amp, center, width, b= fit_Gauss(X,Y)
-                offset= (k_line-center)
-                ##########
-                #Save the offset
-                unacceptable = True
-                while unacceptable:
-                    print '\n Would you like to save the offset?'
-                    save_offset = raw_input('yes/no? >>> ')
-                    if save_offset.lower() in config.affirmatives:
-                        print 'Saving offset to offsets.txt'
-                        g = open('offsets.txt','a')
-                        g.write(str(offset) + '\n')
-                        g.close()
-                        unacceptable= False
-                    elif save_offset.lower() in config.negatives:
-                        print "So be it."
-                        unacceptable = False
-                    else:
-                        print "Invalid Input. Try again."
-                
-                ##########
-                Wavelengths= [w+offset for w in Wavelengths]
-                
-                plt.figure(1)
-                plt.plot(Wavelengths, lamp_spec)
-                plt.hold('on')
-                for line in line_list[1]:
-                    if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                        plt.axvline(line, color= 'r', linestyle= '--')
-                plt.title("Offset Applied.")
-                plt.xlabel("Wavelengths (Ang.)")
-                plt.ylabel("Counts")
-                plt.hold('off')
-                plt.show()
+        #safe_to_continue= False
+        #while not safe_to_continue:
+            #print "while loop not safe_to_continue: ", not safe_to_continue
+        print "\nWould You like to set Offset?" 
+        yn= raw_input('yes/no? >>> ')
+    
+    #yn= 'yes'
+        if yn== 'yes':
+            global ax, fig, coords
+            fig = plt.figure(1)
+            ax = fig.add_subplot(111)
+            ax.plot(Wavelengths, lamp_spec)
+            plt.hold('on')
+            for line in line_list[1]:
+                if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                    plt.axvline(line, color= 'r', linestyle= '--')
+            plt.title("First click known line(red), then click coresponding peak near center\n Then close graph.")
+            plt.xlabel("Wavelengths (Ang.)")
+            plt.ylabel("Counts")
+            if lamp.__contains__('blue'):
+                plt.xlim(4700.,4900.)
+            elif lamp.__contains__('red'):
+                plt.xlim(6920.,7170.)
+            plt.hold('off')
+            coords= [] 
+            cid = fig.canvas.mpl_connect('button_press_event', onclick)
+            plt.show()
+            print "len(coords): ", len(coords)
+            print "len(coords[0]): ", len(coords[0])
+            print "len(line_list): ", len(line_list)
+            print "len(line_list[1]): " , len(line_list[1])
+            k_line= find_near(coords[0][0], line_list[1]) # Nearest line to click cordinates
+            k_peak= find_near(coords[1][0], Wavelengths) # Nearest Peak to click cordinates
+            i_peak= Wavelengths.index(k_peak)
+            X= Wavelengths[i_peak-7:i_peak+7]
+            Y= lamp_spec[i_peak-7:i_peak+7]
+            amp, center, width, b= fit_Gauss(X,Y)
+            offset= (k_line-center)
+            ##########
+            #Save the offset
+            unacceptable = True
+            while unacceptable:
+                print '\n Would you like to save the offset?'
+            save_offset = raw_input('yes/no? >>> ')
+            if save_offset.lower() in config.affirmatives:
+                print 'Saving offset to offsets.txt'
+                g = open('offsets.txt','a')
+                g.write(str(offset) + '\n')
+                g.close()
+                unacceptable= False
+            elif save_offset.lower() in config.negatives:
+                print "So be it."
+                unacceptable = False
             else:
-                offset = 0.
+                print "Invalid Input. Try again."
+            
+            ##########
+            Wavelengths= [w+offset for w in Wavelengths]
+            
+            plt.figure(1)
+            plt.plot(Wavelengths, lamp_spec)
+            plt.hold('on')
+            for line in line_list[1]:
+                if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                    plt.axvline(line, color= 'r', linestyle= '--')
+            plt.title("Offset Applied.")
+            plt.xlabel("Wavelengths (Ang.)")
+            plt.ylabel("Counts")
+            plt.hold('off')
+            plt.show()
+        else:
+            offset = 0.
 
-            # Ask Refit # ===============================================================
-            yn= 'yes'
-            while yn== 'yes':   
-        
-                #print "\nWould you like to refit and recalculate dispersion?" 
-                #yn= raw_input('yes/no? >>> ')
+        # Ask Refit # ===============================================================
+    yn= 'yes'
+    safe_to_continue= False
+    while (yn== 'yes'):   
+
+        #print "\nWould you like to refit and recalculate dispersion?" 
+        #yn= raw_input('yes/no? >>> ')
+        #yn = 'yes' #changedthisvalue in that I removed this reassignment that was unnecessary and I cut out the if statement below it since it doesn't do anything important.
+        #if yn== 'yes' :
+            #print "\nOffset to apply to Grating Angle?"
+            #alpha_offset= float( raw_input('Offset Value? >>>') )
+        alpha_offset = 0.
+            #alpha= alpha + alpha_offset
+            '''
+            #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
+            fig = plt.figure(1)
+            ax = fig.add_subplot(111)
+            ax.plot(Wavelengths, lamp_spec)
+            plt.hold('on')
+            lines_in_range= []
+            for line in line_list[1]:
+                if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                    lines_in_range.append(line)
+                    plt.axvline(line, color= 'r', linestyle= '--')
+            plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
+            plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
+            plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
+            plt.xlabel("Wavelengths (Ang.)")
+            plt.ylabel("Counts")
+            plt.hold('off')
+            coords= [] 
+            cid = fig.canvas.mpl_connect('button_press_event', onclick)
+            plt.show()    
+            '''
+            ###n_pnt, n_cor= np.shape(coords)
+            ###coord_x= [coords[i][0] for i in range(0,n_pnt)]
+        while not safe_to_continue:
+            coord_x = line_list[1] #Use all lines in the line lists for the refitting.
+            n_pnt = len(coord_x)
+            peak_x= []
+            new_waves= []
+            for i in range(0,n_pnt):
+                x= find_near(coord_x[i], Wavelengths)
+                #print "Wavelengths: ", Wavelengths
+                print "searched coord: ", coord_x[i]
+                print "found coord: ", x
+                peak_x.append(x)
+            peak_x, known_waves= remove_edge_calibrations(peak_x, Wavelengths, coord_x)
+            try:
+                centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
+                print "tried successfully...probably..."
+                safe_to_continue= True
+            except RuntimeError as error:
+                print "RuntimeError: ", error
+                print "Try offsetting again... hopefully it works now, or else we'll be here awhile."
+                print "This offset retrying loop doesn't terminate, so you need to control-c if this is getting excessive."
+                #safe_to_continue= False
+                coord_list_short = line_list[0][1:]
+                wave_list_short = line_list[1][1:]
+                line_list = np.array([coord_list_short,wave_list_short])
+                print 'Refitting without first line.'
                 yn = 'yes'
-                if yn== 'yes' :
-                    #print "\nOffset to apply to Grating Angle?"
-                    #alpha_offset= float( raw_input('Offset Value? >>>') )
-                    alpha_offset = 0.
-                    #alpha= alpha + alpha_offset
-                    '''
-                    #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
-                    fig = plt.figure(1)
-                    ax = fig.add_subplot(111)
-                    ax.plot(Wavelengths, lamp_spec)
-                    plt.hold('on')
-                    lines_in_range= []
-                    for line in line_list[1]:
-                        if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                            lines_in_range.append(line)
-                            plt.axvline(line, color= 'r', linestyle= '--')
-                    plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
-                    plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
-                    plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
-                    plt.xlabel("Wavelengths (Ang.)")
-                    plt.ylabel("Counts")
-                    plt.hold('off')
-                    coords= [] 
-                    cid = fig.canvas.mpl_connect('button_press_event', onclick)
-                    plt.show()    
-                    '''
-                    ###n_pnt, n_cor= np.shape(coords)
-                    ###coord_x= [coords[i][0] for i in range(0,n_pnt)]
-                    coord_x = line_list[1] #Use all lines in the line lists for the refitting.
-                    n_pnt = len(coord_x)
-                    peak_x= []
-                    new_waves= []
-                    for i in range(0,n_pnt):
-                        x= find_near(coord_x[i], Wavelengths)
-                        #print "Wavelengths: ", Wavelengths
-                        print "searched coord: ", coord_x[i]
-                        print "found coord: ", x
-                        peak_x.append(x)
-                    peak_x, known_waves= remove_edge_calibrations(peak_x, Wavelengths, coord_x)
-                    try:
-                        centers_in_wave= find_peak_centers(peak_x, Wavelengths, lamp_spec)
-                        safe_to_continue= True
-                    except RuntimeError as error:
-                        print "RuntimeError: ", error
-                        print "Try offsetting again... hopefully it works now, or else we'll be here awhile."
-                        print "This offset retrying loop doesn't terminate, so you need to control-c if this is getting excessive."
-                        safe_to_continue= False
-                print "Made it past the try-except statement"
-                centers_in_wave= [w-offset for w in centers_in_wave]
-                centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
+                safe_to_continue= False
+            
+        print "Made it past the try-except statement and its associated while loop"
+        centers_in_wave= [w-offset for w in centers_in_wave]
+        centers_in_pix= PixCalc(centers_in_wave, alpha, theta, parm[0], parm[1], parm[2], parm[3])
+
+        #known_waves= []
+        #for i in range(0,n_pnt):
+            #x= find_near(coord_x[i], line_list[1])
+            #known_waves.append(x)
+        #known_waves= remove_edge_calibrations(known_waves, line_list[1])
+
+        ##Create array to save data for diagnostic purposes
+        #global savearray, n_fr, n_fd, n_zPnt
+        savearray = np.zeros([len(Wavelengths),8])
+        #n_fr, n_fd, n_zPnt= fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm)
+        par, rmsfit = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
+        n_fr, n_fd, n_zPnt = par
+        n_Wavelengths= DispCalc(Pixels, alpha-alpha_offset, theta, n_fr, n_fd, parm[2], n_zPnt)
+    
+        if plotall:
+            plt.figure(1)
+            plt.plot(n_Wavelengths, lamp_spec)
+            plt.hold('on')
+            for line in line_list[1]:
+                if (n_Wavelengths[0] <= line <= n_Wavelengths[-1]):
+                    plt.axvline(line, color= 'r', linestyle= '--')
+            plt.title("Refitted Solution")
+            plt.xlabel("Wavelengths (Ang.)")
+            plt.ylabel("Counts")
+            plt.hold('off')
         
-                #known_waves= []
-                #for i in range(0,n_pnt):
-                    #x= find_near(coord_x[i], line_list[1])
-                    #known_waves.append(x)
-                #known_waves= remove_edge_calibrations(known_waves, line_list[1])
+        #savearray[0:len(n_Wavelengths),2] = n_Wavelengths
+        #savearray[0:len(lamp_spec),3] = lamp_spec
+        #savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
+    
 
-                ##Create array to save data for diagnostic purposes
-                #global savearray, n_fr, n_fd, n_zPnt
-                savearray = np.zeros([len(Wavelengths),8])
-                #n_fr, n_fd, n_zPnt= fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm)
-                par, rmsfit = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
-                n_fr, n_fd, n_zPnt = par
-                n_Wavelengths= DispCalc(Pixels, alpha-alpha_offset, theta, n_fr, n_fd, parm[2], n_zPnt)
-            
-                if plotall:
-                    plt.figure(1)
-                    plt.plot(n_Wavelengths, lamp_spec)
-                    plt.hold('on')
-                    for line in line_list[1]:
-                        if (n_Wavelengths[0] <= line <= n_Wavelengths[-1]):
-                            plt.axvline(line, color= 'r', linestyle= '--')
-                    plt.title("Refitted Solution")
-                    plt.xlabel("Wavelengths (Ang.)")
-                    plt.ylabel("Counts")
-                    plt.hold('off')
-                
-                #savearray[0:len(n_Wavelengths),2] = n_Wavelengths
-                #savearray[0:len(lamp_spec),3] = lamp_spec
-                #savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
-            
+        '''   
+        plt.figure(2)
+        Diff= [ (Wavelengths[i]-n_Wavelengths[i]) for i in range(0,np.size(Wavelengths)) ]
+        plt.plot(Diff, '.')
+        plt.title("Diffence between old and new solution.")
+        plt.xlabel("Pixel")
+        plt.ylabel("old-new Wavelength (Ang.)")
+        '''
 
-                '''   
-                plt.figure(2)
-                Diff= [ (Wavelengths[i]-n_Wavelengths[i]) for i in range(0,np.size(Wavelengths)) ]
-                plt.plot(Diff, '.')
-                plt.title("Diffence between old and new solution.")
-                plt.xlabel("Pixel")
-                plt.ylabel("old-new Wavelength (Ang.)")
-                '''
-
-                plt.show()
-                if ('blue' in lamp.lower()) and (rmsfit > 1.0):
-                    coord_list_short = line_list[0][1:]
-                    wave_list_short = line_list[1][1:]
-                    line_list = np.array([coord_list_short,wave_list_short])
-                    print 'Refitting without first line.'
-                    yn = 'yes'
-                else:
-                    yn = 'no' #Don't refit again
+        plt.show()
+        if ('blue' in lamp.lower()) and (rmsfit > 1.0):
+            coord_list_short = line_list[0][1:]
+            wave_list_short = line_list[1][1:]
+            line_list = np.array([coord_list_short,wave_list_short])
+            print 'Refitting without first line.'
+            yn = 'yes'
+        else:
+            yn = 'no' #Don't refit again
     savearray[0:len(n_Wavelengths),2] = n_Wavelengths
     savearray[0:len(lamp_spec),3] = lamp_spec
     savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
