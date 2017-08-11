@@ -736,27 +736,27 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             #alpha_offset= float( raw_input('Offset Value? >>>') )
         alpha_offset = 0.
             #alpha= alpha + alpha_offset
-            '''
-            #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
-            fig = plt.figure(1)
-            ax = fig.add_subplot(111)
-            ax.plot(Wavelengths, lamp_spec)
-            plt.hold('on')
-            lines_in_range= []
-            for line in line_list[1]:
-                if (Wavelengths[0] <= line <= Wavelengths[-1]):
-                    lines_in_range.append(line)
-                    plt.axvline(line, color= 'r', linestyle= '--')
-            plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
-            plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
-            plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
-            plt.xlabel("Wavelengths (Ang.)")
-            plt.ylabel("Counts")
-            plt.hold('off')
-            coords= [] 
-            cid = fig.canvas.mpl_connect('button_press_event', onclick)
-            plt.show()    
-            '''
+        '''
+        #Uncomment this part if you would like to select lines to use by hand. Otherwise, all lines in the above line lists are used.
+        fig = plt.figure(1)
+        ax = fig.add_subplot(111)
+        ax.plot(Wavelengths, lamp_spec)
+        plt.hold('on')
+        lines_in_range= []
+        for line in line_list[1]:
+            if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                lines_in_range.append(line)
+                plt.axvline(line, color= 'r', linestyle= '--')
+        plt.title("Click on The Peaks You Want to Use to Refit \n Then close graph.")
+        plt.xlim([np.min(lines_in_range)-50, np.max(lines_in_range)+50])
+        plt.ylim([np.min(lamp_spec)-100, np.max(lamp_spec)/2])
+        plt.xlabel("Wavelengths (Ang.)")
+        plt.ylabel("Counts")
+        plt.hold('off')
+        coords= [] 
+        cid = fig.canvas.mpl_connect('button_press_event', onclick)
+        plt.show()    
+        '''
             ###n_pnt, n_cor= np.shape(coords)
             ###coord_x= [coords[i][0] for i in range(0,n_pnt)]
         while not safe_to_continue:
