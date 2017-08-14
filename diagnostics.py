@@ -877,6 +877,8 @@ def diagnostic_plots_extraction(file_name, flags):
     print "post-trim val_1200: ", val_1200
     plt.figure()
     plt.scatter(pix_FWHM,meas_FWHM)
+    print "pix_FWHM: ", pix_FWHM
+    print "meas_FWHM: ", meas_FWHM
     plt.plot(np.arange(len(fit_FWHM)),fit_FWHM)
     plt.xlabel('Pixel')
     plt.ylabel('FWHM')
