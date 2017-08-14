@@ -977,6 +977,7 @@ def diagnostic_plots_spectra(file_name, flags):
 def diagnostic_now():
     
     original_date = os.getcwd()[-10::]
+    print "original_date: ", original_date
 
     ##### Flags #####
     # thresholds and constants
