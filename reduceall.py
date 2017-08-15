@@ -104,14 +104,24 @@ for x in spec_files:
 print '\n Beginning Wavelength Calibration'
 spec_files = sorted(glob('cftb*ms.fits'))
 lamp_files = sorted(glob('tFe*ms.fits')+glob("t*_fe*ms.fits"))
-offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
-if len(offset_file) == 0:
-    offset_file = None
-else:
-    offset_file = offset_file[0]
 
+def check_offsets():
+    offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
+    if len(offset_file) == 0:
+        offset_file = None
+    else:
+        offset_file = offset_file[0]
+#offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
+#if len(offset_file) == 0:
+    #offset_file = None
+#else:
+    #offset_file = offset_file[0]
+offset_file = check_offsets() #check for offset files once before going through this.
+starting_offset_file= offset_file #This is the determinant as to whether or not we should be 
 #print spec_files
 #print lamp_files
+counter_b = 0
+count_r = 0
 #Need to carefully match up the correct lamp and spectrum files. This seems to work well.
 for x in lamp_files:
     if 'blue' in x.lower():
@@ -123,6 +133,16 @@ for x in lamp_files:
         try:
             if (lamp_color in y.lower()) and (y[5:y.find('_930')] in x):
                 print x, y, offset_file
+                if  (lamp_color== 'blue'):
+                    if counter_b > 0:
+                        offset_file =check_offsets() #will now know that there is an offset file after the first run.
+                    counter_b+=1
+                if (lamp_color == 'red'):
+                    if counter_r > 0:
+                        offset_file = check_offsets()
+                    elif (starting_offset_file == None):
+                        offset_file = starting_offset_file
+                    counter_r += 1
                 if offset_file == None:
                     plotalot = True
                 else:
