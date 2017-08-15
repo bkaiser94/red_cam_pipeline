@@ -121,8 +121,9 @@ starting_offset_file= offset_file #This is the determinant as to whether or not 
 #print spec_files
 #print lamp_files
 counter_b = 0
-count_r = 0
+counter_r = 0
 #Need to carefully match up the correct lamp and spectrum files. This seems to work well.
+#current setup as of 2017-08-15 relies on blue calibration before red
 for x in lamp_files:
     if 'blue' in x.lower():
         lamp_color = 'blue'
@@ -136,20 +137,23 @@ for x in lamp_files:
                 if  (lamp_color== 'blue'):
                     if counter_b > 0:
                         offset_file =check_offsets() #will now know that there is an offset file after the first run.
+                    print "counter_b: ", counter_b
                     counter_b+=1
                 if (lamp_color == 'red'):
                     if counter_r > 0:
                         offset_file = check_offsets()
                     elif (starting_offset_file == None):
                         offset_file = starting_offset_file
+                    print "counter_r: ", counter_r
                     counter_r += 1
                 if offset_file == None:
                     plotalot = True
                 else:
                     plotalot = False
+                print x,y, offset_file
                 Wavelength_Calibration.calibrate_now(x,y,'no',config.zzceti,offset_file,plotall=plotalot)
         except NameError as nameerror:
-            #protects from the lamp_color not getting assigned in those if statements up there
+            #protects from the lamp_color not getting assigned in those if statements up there, but it also catches errors where one of the variables isn't defined too, doesn't it?
             print "NameError: ", nameerror
             print "still no colors in files for like the 200th time."
             print "Filename that has no colors: ", y

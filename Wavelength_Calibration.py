@@ -620,7 +620,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
     Wavelengths= DispCalc(Pixels, alpha, theta, parm[0], parm[1], parm[2], parm[3])
 
     # Ask for offset # ===========================================================
-    print offset_file
+    print "offset_file: ", offset_file
     if offset_file:
         print 'Using offset file: ', offset_file
         offsets = np.genfromtxt(offset_file,dtype='d')
