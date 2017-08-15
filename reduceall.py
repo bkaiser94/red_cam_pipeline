@@ -136,11 +136,13 @@ for x in lamp_files:
                 print x, y, offset_file
                 if  (lamp_color== 'blue'):
                     if counter_b > 0:
+                        print "recognized counter_b"
                         offset_file =check_offsets() #will now know that there is an offset file after the first run.
                     print "counter_b: ", counter_b
                     counter_b+=1
                 if (lamp_color == 'red'):
                     if counter_r > 0:
+                        print "recognized counter_r"
                         offset_file = check_offsets()
                     elif (starting_offset_file == None):
                         offset_file = starting_offset_file
