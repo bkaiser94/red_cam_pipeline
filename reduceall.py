@@ -24,6 +24,7 @@ import flux_calibration
 import diagnostics
 from glob import glob
 import config
+import os
 
 
 
@@ -106,11 +107,14 @@ spec_files = sorted(glob('cftb*ms.fits'))
 lamp_files = sorted(glob('tFe*ms.fits')+glob("t*_fe*ms.fits"))
 
 def check_offsets():
+    print "checking for offsets in this directory: ", os.getcwd()
     offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
+    print "offset_file: ", offset_file
     if len(offset_file) == 0:
         offset_file = None
     else:
         offset_file = offset_file[0]
+    return offset_file
 #offset_file = glob('offsets.txt') #Offset file must be structured as blue, then red
 #if len(offset_file) == 0:
     #offset_file = None
