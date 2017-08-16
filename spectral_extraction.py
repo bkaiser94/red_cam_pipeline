@@ -216,7 +216,7 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
             #unacceptable = True
             while True:
                 try:
-                    bkg_value = int(raw_input(query_string + ">>>"))
+                    bkg_value = int(raw_input(query_string + ">>> "))
                     break
                 except ValueError:
                     print "Enter an integer value. That wasn't an integer"
@@ -224,6 +224,7 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
         background_inner = get_bkg_value("Inner background radius: ")
         background_outer = get_bkg_value("Outer background radius: ")
         background_radii = [background_inner, background_outer]
+        extraction_rad= np.float_(get_bkg_value("Extraction radius: "))
         #coordx= []
         #coordy=[]
         #for goround in range(0,2):
