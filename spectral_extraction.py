@@ -262,9 +262,9 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
     print 'Starting extraction.'
     if trace_exist:
         trace = np.load(tracefile)
-        output_spec = superextract.superExtract(data,varmodel,gain,rdnoise,trace=trace,pord=2,tord=2,bord=1,bkg_radii=background_radii,bsigma=2.,extract_radius=extraction_rad,dispaxis=1,verbose=False,csigma=5.,polyspacing=1,retall=False)
+        output_spec = superextract.superExtract(data,varmodel,gain,rdnoise,trace=trace,pord=2,tord=2,bord=1,bkg_radii=background_radii,bsigma=2.,extract_radius=extraction_rad,dispaxis=1,verbose=True,csigma=5.,polyspacing=1,retall=False)
     else:
-        output_spec = superextract.superExtract(data,varmodel,gain,rdnoise,pord=2,tord=2,bord=1,bkg_radii=background_radii,bsigma=2.,extract_radius=extraction_rad,dispaxis=1,verbose=False,csigma=5.,polyspacing=1,retall=False)
+        output_spec = superextract.superExtract(data,varmodel,gain,rdnoise,pord=2,tord=2,bord=1,bkg_radii=background_radii,bsigma=2.,extract_radius=extraction_rad,dispaxis=1,verbose=True,csigma=5.,polyspacing=1,retall=False)
     #pord = order of profile polynomial. Default = 2. This seems appropriate, no change for higher or lower order.
     #tord = degree of spectral-trace polynomial, 1 = line
     #bord = degree of polynomial background fit
