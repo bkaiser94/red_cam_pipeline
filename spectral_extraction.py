@@ -233,19 +233,22 @@ def extract_now(specfile,lamp,FWHMfile,tracefile,trace_exist=False):
         #slope= (coordy[1]- coordy[0])/(coordx[1]-coordx[0])
         
         
-            
-    #First check this against the bottom
-    if fitparams.params[2] - background_radii[1] < 10.:
-        background_radii[1] = fitparams.params[2] - 10.
-        background_radii[0] -= 60 - background_radii[1]
-    #Then check against the top
-    hold = background_radii[1]
-    if fitparams.params[2] + background_radii[1] > 190.:
-        background_radii[1] = 190. - fitparams.params[2]
-        background_radii[0] -= hold - background_radii[1]
-    #Ensure that the closest point is at least 20 pixels away.
-    if background_radii[0] < 20.:
-        background_radii[0] = 20.
+    if not config.cautious:
+        #First check this against the bottom
+        if fitparams.params[2] - background_radii[1] < 10.:
+            background_radii[1] = fitparams.params[2] - 10.
+            background_radii[0] -= 60 - background_radii[1]
+        #Then check against the top
+        hold = background_radii[1]
+        if fitparams.params[2] + background_radii[1] > 190.:
+            background_radii[1] = 190. - fitparams.params[2]
+            background_radii[0] -= hold - background_radii[1]
+        #Ensure that the closest point is at least 20 pixels away.
+        if background_radii[0] < 20.:
+            background_radii[0] = 20.
+    elif config.cautious:
+        print "Ironically, we are not checking if these background radii overlap with boundaries or\nthe spectrum itself since 'cautious' is enabled. Hey, you just typed the values. Maybe \nyou should have been more careful if you're worried about it."
+    
     background_radii[0] = np.round(background_radii[0],decimals=1)
     background_radii[1] = np.round(background_radii[1],decimals=1)
     #plt.plot(data[1200,:])
