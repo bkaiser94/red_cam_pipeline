@@ -653,7 +653,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         #safe_to_continue= False
         #while not safe_to_continue:
             #print "while loop not safe_to_continue: ", not safe_to_continue
-        print "\nWould You like to set Offset?" 
+        print "\nWould You like to set Offset? (The answer is almost certainly 'yes'.)" 
         yn= raw_input('yes/no? >>> ')
     
     #yn= 'yes'
