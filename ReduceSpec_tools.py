@@ -1352,16 +1352,16 @@ def imcombine(im_list, output_name, method,
         if method == 'median':
             counts = np.copy(img_block)
             clipped_sig= SigClip(counts, lo_sig, hi_sig)
-            print "clipped_sig: ", clipped_sig
-            print "clipped_sig.shape: ", clipped_sig.shape
+            #print "clipped_sig: ", clipped_sig
+            #print "clipped_sig.shape: ", clipped_sig.shape
             #print "clipped_sig[~np.isnan(clipped_sig)].shape: ", clipped_sig[~np.isnan(clipped_sig)].shape
             #masking method
             counts_masked= np.ma.masked_array(data= clipped_sig, mask=np.isnan(clipped_sig)) #masked array that allows for operations along axes.
             val= np.ma.median(counts_masked, axis=0) #evaluates down stack
             #val = np.median( clipped_sig[~np.isnan(clipped_sig)], axis=0 )
             #val = np.nanmedian(clipped_sig, axis = 0) #solution when numpy is upgraded to 1.9 or later. Only line required other than then inserting this into the combined array
-            print "val: ", val
-            print "val.shape : ", val.shape
+            #print "val: ", val
+            #print "val.shape : ", val.shape
             print "If this numpy version is 1.9 or later, we need to update the code since 1.8.2 doesn't have np.nanmedian... : ", np.__version__
             #print "np.median(clipped_sig, axis =0): ", np.median(clipped_sig, axis=0)
             comb_img[0,:,:] = np.copy(val)
