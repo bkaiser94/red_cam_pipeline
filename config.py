@@ -9,12 +9,12 @@ blue_cam_id = 'Blue'
 camera_header= 'INSTCONF' #yes, this is the header that contains the indication of which camera is being used; it is not the 'camera_header'
 affirmatives= ['yes', 'y', 'true']
 negatives= ['no', 'n', 'false']
-blue_cam_lotrim= 9
+blue_cam_lotrim= 9 #trim values for the 2x2 binned images.
 blue_cam_hightrim= 2055
 red_cam_lotrim= 45
 red_cam_hightrim= blue_cam_hightrim
 zzceti = 'no' #argument for Wavelength_Calibration.py
-to_flux = False #argument that determines whether or not flux calibration will occur in the run. Since we don't yet have a red cam master standard, it makes sense to keep this commented.
+to_flux = True #argument that determines whether or not flux calibration will occur in the run. Since we don't yet have a red cam master standard, it makes sense to keep this commented.
 
 
 
