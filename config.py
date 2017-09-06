@@ -15,6 +15,8 @@ red_cam_lotrim= 45
 red_cam_hightrim= blue_cam_hightrim
 zzceti = 'yes' #argument for Wavelength_Calibration.py
 to_flux = False #argument that determines whether or not flux calibration will occur in the run. Since we don't yet have a red cam master standard, it makes sense to keep this commented.
+master_response_dir = '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards/response_curves/'
+standards_dir= '/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards'
 
 
 

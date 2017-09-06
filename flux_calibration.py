@@ -70,6 +70,7 @@ from glob import glob
 import matplotlib.pyplot as plt
 from scipy.interpolate import UnivariateSpline
 import argparse
+import config
 
 #=============================================
 #To help with command line interpretation
@@ -108,7 +109,8 @@ def flux_calibrate_now(stdlist,fluxlist,speclist,extinct_correct=False,masterres
     if masterresp: #Use the master response function
         #Read in master response function and use that.
         cwd = os.getcwd()
-        os.chdir('/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards/response_curves/')
+        #os.chdir('/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards/response_curves/') #changedthis by adding the thing below and commenting current line
+        os.chdir(config.master_response_dir)
         standards = sorted(glob('*resp*.npy'))
 
         master_response_blue_in = np.load(standards[0])
@@ -205,7 +207,8 @@ def flux_calibrate_now(stdlist,fluxlist,speclist,extinct_correct=False,masterres
 
             #Change to the standard star directory
             cwd = os.getcwd()
-            os.chdir('/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards')
+            #os.chdir('/afs/cas.unc.edu/depts/physics_astronomy/clemens/students/group/standards')#changedthis by commenting and adding the line below
+            os.chdir(config.standards_dir)
 
             #read in the standard file
             placeholder = cucumber // 2

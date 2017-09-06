@@ -226,6 +226,7 @@ def reduce_now(args):
     time_elapsed()
     # Save all diagnostic info
     rt.save_diagnostic()
+    print "ftb_spec_list: ", ftb_spec_list
     
     #LA Cosmic
     i = 0
@@ -240,6 +241,7 @@ def reduce_now(args):
             m += 1
         i += 1
     time_elapsed()
+    print "cftb_spec: ", cftb_spec
     cftb_spec_list = rt.List_Combe(cftb_spec)
     cftb_mask_list = rt.List_Combe(cftb_mask)
     print "cftb_spec_list: ", cftb_spec_list
@@ -249,6 +251,7 @@ def reduce_now(args):
     comb_fb_spec = []
     while i < nsp:
         print "==========\nnew iteration \n"
+        print "cftb_spec_list[i]: ", cftb_spec_list[i]
         rt.checkspec(cftb_spec_list[i])
         comb_fb_spec.append ( rt.imcombine(cftb_spec_list[i], 'cftb.'+spec_names[i], 'average', 
                                            lo_sig= 10, hi_sig= 3, overwrite= overwrite,mask=cftb_mask_list[i]) )
