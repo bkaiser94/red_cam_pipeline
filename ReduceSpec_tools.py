@@ -509,10 +509,15 @@ def lacosmic(img):
     array = data2
     header = fits.getheader(img)
     Fix_Header(header) 
-    if header[config.camera_header] == config.blue_cam_id:
-        gain = 1.33 #datalist[0].header['GAIN'] #1.33 from 2017-06-07
-    elif header[config.camera_header] == config.red_cam_id:
-        gain = datalist[0].header['GAIN']
+    try:
+        if header[config.camera_header] == config.blue_cam_id:
+            gain = 1.33 #datalist[0].header['GAIN'] #1.33 from 2017-06-07
+        elif header[config.camera_header] == config.red_cam_id:
+            gain = datalist[0].header['GAIN']
+    except KeyError as error:
+        print error
+        print "So we assume blue camera since there might not have been a red camera yet"
+        gain = 1.33
     rdnoise = datalist[0].header['RDNOISE']
 
     c = cosmics.cosmicsimage(array, gain=gain, readnoise=rdnoise, sigclip = 5.0, sigfrac = 0.5, objlim = 4.0,satlevel=45000.0,verbose=True)
@@ -579,10 +584,15 @@ def Norm_Flat_Avg( flat ):
     Fix_Header(flat_head)
     print "norm_flat_avg input flat shape: ", flat_data.shape
     # Calculate Average of the flat excluding bottom row and overscan regions # 
-    if flat_head[config.camera_header] == config.blue_cam_id:
+    try:
+        if flat_head[config.camera_header] == config.blue_cam_id:
+            avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
+        elif flat_head[config.camera_header]== config.red_cam_id:
+            avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
+    except KeyError as error:
+        print error
+        print "assuming blue camera (because it probably is)"
         avg_flat = np.average( flat_data[:, 1:200, config.blue_cam_lotrim:config.blue_cam_hightrim] )
-    elif flat_head[config.camera_header]== config.red_cam_id:
-        avg_flat = np.average( flat_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim] )
     norm_flat_data = np.divide( flat_data, float(avg_flat) )
     print 'Average Value: %s\n' % avg_flat
     # Copy Header, write changes, and write file #
@@ -683,12 +693,18 @@ def Norm_Flat_Poly( flat , order):
     # Fit the data removeing the limits of the overscan regions and littrow ghost. #
     hdu = fits.getheader(flat)
     Fix_Header(hdu)
-    if hdu[config.camera_header] == config.blue_cam_id:
+    try:
+        if hdu[config.camera_header] == config.blue_cam_id:
+            lo= config.blue_cam_lotrim
+            hi= config.blue_cam_hightrim
+        elif hdu[config.camera_header] == config.red_cam_id:
+            lo= config.red_cam_lotrim
+            hi= config.red_cam_hightrim
+    except KeyError as error:
+        print error
+        print "assuming blue camera"
         lo= config.blue_cam_lotrim
         hi= config.blue_cam_hightrim
-    elif hdu[config.camera_header] == config.red_cam_id:
-        lo= config.red_cam_lotrim
-        hi= config.red_cam_hightrim
     xvals = np.concatenate((X[lo:litt_low],X[litt_hi:hi]))
     yvals = np.concatenate((fit_data[lo:litt_low],fit_data[litt_hi:hi]))
     # Calculate Fit # 
@@ -890,7 +906,58 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     #Now do the same for the domeflat
     #############################
     print 'Starting dome flat portion'
-    if hdu[config.camera_header] == config.blue_cam_id:
+    try:
+        if hdu[config.camera_header] == config.blue_cam_id:
+            print "blue cam, so we're gonna do all the domeflat shenanigans."
+            getcwd = os.getcwd()
+            os.chdir(dome_flat_directory)
+            dome = fits.getdata(dome_flat_name)
+            domeim = dome[0,:,:]
+
+            #Replace littrow ghost with parabolic fit between edges
+            print 'Masking littrow ghost in dome flat'
+            domeim_masked = domeim.copy()
+            littrow_ghost_red = np.genfromtxt('littrow_ghost_red.txt')
+            litt_low_red = int(littrow_ghost_red[0])
+            litt_hi_red = int(littrow_ghost_red[1])
+            rows = domeim.shape[0]
+            columns = np.arange(domeim.shape[1])
+            columns_littrow_red = np.linspace(litt_low_red,litt_hi_red,num=(litt_hi_red-litt_low_red)+1)
+            columns_fit_red = np.linspace(litt_low_red-15,litt_hi_red+15,num=(litt_hi_red-litt_low_red)+31)
+            #print columns_fit_red
+            
+            for x in np.arange(rows):
+                #row_data = image[x,litt_low-15:litt_hi+16]
+                row_data_red = np.concatenate((domeim[x,litt_low_red-15:litt_low_red+1],domeim[x,litt_hi_red:litt_hi_red+16]))
+                columns_fit_red = np.concatenate((columns[litt_low_red-15:litt_low_red+1],columns[litt_hi_red:litt_hi_red+16]))
+                pol = np.polyfit(columns_fit_red,row_data_red,2)
+                polp = np.poly1d(pol)
+                #if (x > 80) and (x < 90):
+                #    plt.plot(columns_fit_red,row_data_red,'b+')
+                #    plt.plot(columns_fit_red,polp(columns_fit_red),'r')
+                #    plt.show()
+                domeim_masked[x,litt_low_red:litt_hi_red+1] = polp(columns_littrow_red)
+
+            #quartz_kernel_size = 20 #If this is too small, we don't take out anything. Too large and we take out everything. Goal is to strike middle so that we remove only low frequency stuff. 
+            #quartz_boxcar_kernel = Box2DKernel(quartz_kernel_size)
+            #boxcar_kernel = Gaussian2DKernel(kernel_size)
+            print 'Boxcar smoothing dome flat with kernel of 20'
+            dome_image_pad = np.pad(domeim_masked,quartz_kernel_size,'mean',stat_length=10)
+            domeim_smooth = convolve(dome_image_pad,quartz_boxcar_kernel)
+            dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
+            
+            os.chdir(getcwd)
+
+        ####################
+        # Multiple nQuartz by dome_image_smooth_unpad
+        ####################
+        
+        if hdu[config.camera_header] == config.red_cam_id:
+            print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
+            dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
+    except KeyError as error:
+        print error
+        print "assuming blue"
         print "blue cam, so we're gonna do all the domeflat shenanigans."
         getcwd = os.getcwd()
         os.chdir(dome_flat_directory)
@@ -930,14 +997,7 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
         dome_image_smooth_unpad = domeim_smooth[quartz_kernel_size:(-1*quartz_kernel_size),quartz_kernel_size:(-1*quartz_kernel_size)]
         
         os.chdir(getcwd)
-
-    ####################
-    # Multiple nQuartz by dome_image_smooth_unpad
-    ####################
     print 'Mutliplying the two flats.'
-    if hdu[config.camera_header] == config.red_cam_id:
-        print "Using red cam, and there is not a universal dome flat for the red cam, so we're not doing the dome flat- quart flat convolution."
-        dome_image_smooth_unpad= np.ones([199, config.red_cam_hightrim- config.red_cam_lotrim])
     nQD = np.multiply(nQuartz20,dome_image_smooth_unpad)
 
 
@@ -1152,12 +1212,18 @@ def find_littrow(flat):
     print "fit_data.shape: ", fit_data.shape
     X= range(0,len(fit_data)) # Column Numbers 
     # Fit the data removeing the limits of the overscan regions. #
-    if flat_head[config.camera_header] == config.blue_cam_id:
+    try:
+        if flat_head[config.camera_header] == config.blue_cam_id:
+            lo= config.blue_cam_lotrim #10 before. Even though it's 9 at other points for whatever reason...
+            hi= config.blue_cam_hightrim; #2055
+        elif flat_head[config.camera_header] == config.red_cam_id:
+            lo= config.red_cam_lotrim
+            hi= config.red_cam_hightrim; #2055
+    except KeyError as error:
+        print error
+        print "assuming blue camera"
         lo= config.blue_cam_lotrim #10 before. Even though it's 9 at other points for whatever reason...
         hi= config.blue_cam_hightrim; #2055
-    elif flat_head[config.camera_header] == config.red_cam_id:
-        lo= config.red_cam_lotrim
-        hi= config.red_cam_hightrim; #2055
     coeff = np.polyfit(X[lo:hi],fit_data[lo:hi],4)
     profile = np.poly1d(coeff)(X)
     #plt.clf()
