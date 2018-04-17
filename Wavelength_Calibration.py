@@ -818,7 +818,14 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             plt.xlabel("Wavelengths (Ang.)")
             plt.ylabel("Counts")
             plt.hold('off')
-        
+        if plotall:
+            plt.figure(1)
+            plt.plot(Pixels, lamp_spec)
+            plt.hold('on')
+            plt.title("Refitted Solution")
+            plt.xlabel("Pixels)")
+            plt.ylabel("Counts")
+            plt.hold('off')
         #savearray[0:len(n_Wavelengths),2] = n_Wavelengths
         #savearray[0:len(lamp_spec),3] = lamp_spec
         #savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
