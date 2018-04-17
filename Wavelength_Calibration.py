@@ -818,6 +818,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             plt.xlabel("Wavelengths (Ang.)")
             plt.ylabel("Counts")
             plt.hold('off')
+            plt.show()
         if plotall:
             plt.figure(1)
             plt.plot(Pixels, lamp_spec)
@@ -826,6 +827,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             plt.xlabel("Pixels)")
             plt.ylabel("Counts")
             plt.hold('off')
+            plt.show()
         #savearray[0:len(n_Wavelengths),2] = n_Wavelengths
         #savearray[0:len(lamp_spec),3] = lamp_spec
         #savearray[0:len(np.array(line_list[1])),4] = np.array(line_list[1])
@@ -840,7 +842,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         plt.ylabel("old-new Wavelength (Ang.)")
         '''
 
-        plt.show()
+        
         if ('blue' in lamp.lower()) and (rmsfit > 1.0):
             coord_list_short = line_list[0][1:]
             wave_list_short = line_list[1][1:]
