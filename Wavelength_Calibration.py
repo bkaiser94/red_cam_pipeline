@@ -714,6 +714,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             plt.hold('on')
             for line in line_list[1]:
                 if (Wavelengths[0] <= line <= Wavelengths[-1]):
+                    plt.text(line, np.max(lamp_spec)*1.02, str(line)+" A")
                     plt.axvline(line, color= 'r', linestyle= '--')
             plt.title("Offset Applied.")
             plt.xlabel("Wavelengths (Ang.)")
