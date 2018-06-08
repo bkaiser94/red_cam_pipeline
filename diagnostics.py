@@ -836,7 +836,7 @@ def diagnostic_plots_extraction(file_name, flags):
         pixel_back_fit.append(arr[m][9])
         val_fit.append(arr[m][10])
         poly_fit_back.append(arr[m][11])
-    print "val_1200: ", val_1200
+    #print "val_1200: ", val_1200
 
     meas_FWHM = np.array(meas_FWHM)
     meas_FWHM = np.trim_zeros(meas_FWHM, 'b')
@@ -874,11 +874,11 @@ def diagnostic_plots_extraction(file_name, flags):
     poly_fit_back = np.array(poly_fit_back)  
     poly_fit_back = np.trim_zeros(poly_fit_back, 'b')
     
-    print "post-trim val_1200: ", val_1200
+    #print "post-trim val_1200: ", val_1200
     plt.figure()
     plt.scatter(pix_FWHM,meas_FWHM)
-    print "pix_FWHM: ", pix_FWHM
-    print "meas_FWHM: ", meas_FWHM
+    #print "pix_FWHM: ", pix_FWHM
+    #print "meas_FWHM: ", meas_FWHM
     plt.plot(np.arange(len(fit_FWHM)),fit_FWHM)
     plt.xlabel('Pixel')
     plt.ylabel('FWHM')
