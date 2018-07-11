@@ -889,7 +889,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         lamp_header.append( ('RMSWAVE',rmsfit, 'RMS from Wavelength Calib.'),
                             useblanks= True, bottom= True )
         NewHdu = fits.PrimaryHDU(data= lamp_data, header= lamp_header)
-        NewHdu.writeto(newname, output_verify='warn', clobber= clob)
+        NewHdu.writeto(newname, output_verify='fix', clobber= clob)
 
     #Save parameters to ZZ Ceti spectrum#
     #print "\nWrite solution to header of another spectrum?"
@@ -931,7 +931,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
                 exists = False
             else:
                 exists = False
-        NewspecHdu.writeto(newname, output_verify='warn', clobber= clob)
+        NewspecHdu.writeto(newname, output_verify='fix', clobber= clob)
 
     #Save arrays for diagnostics
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")

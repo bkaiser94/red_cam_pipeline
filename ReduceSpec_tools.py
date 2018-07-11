@@ -393,7 +393,7 @@ def Trim_Spec(img):
             NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, trimval(config.red_cam_lotrim, False) : trimval(config.red_cam_hightrim, True)], header= img_head) #works for red camera
     #new_file_name= check_file_exist('t'+img)
     new_file_name= 't'+img
-    NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+    NewHdu.writeto(new_file_name, output_verify='fix', clobber= True )
     print "writing trimmed image to " +new_file_name
     return (new_file_name)
         
@@ -423,7 +423,7 @@ def Trim_Spec(img):
                 ##justchangedthisvalue \/ \/ Added another colon in here, which basically undoes all of my efforts...
                 #NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, config.red_cam_lotrim:config.red_cam_hightrim], header= img_head) #works for red camera
         #new_file_name= check_file_exist('t'+img)
-        #NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        #NewHdu.writeto(new_file_name, output_verify='fix', clobber= True )
         #print "writing trimmed image to " +new_file_name
         #return (new_file_name)
     #elif length == 4142.:
@@ -432,7 +432,7 @@ def Trim_Spec(img):
                 #useblanks= True, bottom= True )
         #NewHdu = fits.PrimaryHDU(data= img_data[:, 1:200, 19:4111], header= img_head)
         #new_file_name= check_file_exist('t'+img)
-        #NewHdu.writeto(new_file_name, output_verify='warn', clobber= True )
+        #NewHdu.writeto(new_file_name, output_verify='fix', clobber= True )
         #return (new_file_name)
     #else:
         #print 'WARNING. Image not trimmed. \n'
@@ -564,7 +564,7 @@ def Bias_Subtract( img_list, zero_img ):
         NewHdu = fits.PrimaryHDU(b_img_data, hdu)
         #bias_sub_name= check_file_exist('b.'+img)
         bias_sub_name= 'b.'+img
-        NewHdu.writeto(bias_sub_name, output_verify='warn', clobber= True)
+        NewHdu.writeto(bias_sub_name, output_verify='fix', clobber= True)
         bias_sub_list.append( bias_sub_name )
     return bias_sub_list
 
@@ -602,7 +602,7 @@ def Norm_Flat_Avg( flat ):
     NewHdu = fits.PrimaryHDU(data= norm_flat_data, header= flat_head)
     #norm_flat_name= check_file_exist('n'+flat)
     norm_flat_name= 'n'+flat
-    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    NewHdu.writeto(norm_flat_name, output_verify='fix', clobber= True )
     
     print 'Flat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(norm_flat_data), np.std(norm_flat_data))
     return (norm_flat_name)
@@ -753,7 +753,7 @@ def Norm_Flat_Poly( flat , order):
     NewHdu = fits.PrimaryHDU(data= flat_data, header= hdu)
     #norm_flat_name= check_file_exist('n'+flat)
     norm_flat_name= 'n'+flat
-    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    NewHdu.writeto(norm_flat_name, output_verify='fix', clobber= True )
     
     print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
     return (norm_flat_name)
@@ -834,7 +834,7 @@ def Norm_Flat_Boxcar( flat ):
     NewHdu = fits.PrimaryHDU(data= image_divided, header= hdu)
     #norm_flat_name= check_file_exist('n'+flat)
     norm_flat_name= 'n'+flat
-    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    NewHdu.writeto(norm_flat_name, output_verify='fix', clobber= True )
     
     print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
     return (norm_flat_name)
@@ -1127,7 +1127,7 @@ def Norm_Flat_Boxcar_Multiples( flat ,adc_stat=None):
     NewHdu = fits.PrimaryHDU(data= newimage, header= hdu)
     #norm_flat_name= check_file_exist('n'+flat)
     norm_flat_name= 'n'+flat
-    NewHdu.writeto(norm_flat_name, output_verify='warn', clobber= True )
+    NewHdu.writeto(norm_flat_name, output_verify='fix', clobber= True )
     
     print '\nFlat: %s Mean: %.3f StDev: %.3f' % (norm_flat_name, np.mean(flat_data), np.std(flat_data))
     return (norm_flat_name)
@@ -1194,7 +1194,7 @@ def Flat_Field( spec_list, flat ):
         NewHdu = fits.PrimaryHDU(data= f_spec_data, header= hdu)
         #new_file_name= check_file_exist('f'+spec)
         new_file_name='f'+spec
-        NewHdu.writeto(new_file_name, output_verify='warn', clobber= True)
+        NewHdu.writeto(new_file_name, output_verify='fix', clobber= True)
         f_spec_list.append(new_file_name)
     return f_spec_list
 
@@ -1596,11 +1596,11 @@ def imcombine(im_list, output_name, method,
     # Write header to new fits file  
     #new_file_name= check_file_exist(output_name)
     new_file_name= output_name
-    hdu.writeto(new_file_name, output_verify='warn', clobber= True)
+    hdu.writeto(new_file_name, output_verify='fix', clobber= True)
     
     # write combined data to new fits file  # 
     fits.update(output_name, data= comb_img, header= hdu.header, 
-                output_verify='warn')
+                output_verify='fix')
                          
     print ( "\nCombined Image: %s Mean: %.3f StDev: %.3f" 
             % (new_file_name, np.mean(comb_img), np.std(comb_img)) ) 

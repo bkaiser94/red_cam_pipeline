@@ -175,7 +175,7 @@ def applywavelengths(wavefile,applyfile,newname):
             exists = False
         else:
             exists = False
-    NewspecHdu.writeto(newname, output_verify='warn', clobber= clob)
+    NewspecHdu.writeto(newname, output_verify='fix', clobber= clob)
 
 # ===========================================================================
 
