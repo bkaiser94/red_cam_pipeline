@@ -1306,7 +1306,7 @@ def SetAirMass(img, lat= -30.238, scale= 750):
     print '%5.4f  %5.4f  %5.4f  %5.4f' % (AM[0], AM[1], AM[2], AMeff)
     hdu.header.set( 'AIRMASS', np.round(AMeff,6) , 
                    'Calculated Effective Airmass' )
-    hdulist.close()
+    hdulist.close(output_verify= 'fix')
     return AMeff    
  
 # =========================================================================== 
