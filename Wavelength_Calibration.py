@@ -5,7 +5,7 @@ The input should just be the name of a comparison lamp, taken from argv.
 The function depend on some hard coded data, "WaveList" and "Parameters" which 
 are project spesific. 
 
-Written by Jesus Meza, UNC. March 2016. Upgrades by Josh Fuchs.
+Written by Jesus Meza, UNC. March 2016. Upgrades by Josh Fuchs and Ben Kaiser
 
 Use: 
 >>> python WaveCal.py lamp_spec.ms.fits
@@ -348,7 +348,9 @@ def fit_Grating_Eq(known_pix, known_wave, alpha, theta, Param,plotalot=False):
     savearray[0:len(known_wave),0] = known_wave
     savearray[0:len(Res),1] = Res
     
-    return Par, rmsfit
+    #return Par, rmsfit
+    return Par, rmsfit, Res
+
     
 # =========================================================================== 
 def gaussmpfit(x,p): #single gaussian
@@ -802,7 +804,9 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         #global savearray, n_fr, n_fd, n_zPnt
         savearray = np.zeros([len(Wavelengths),8])
         #n_fr, n_fd, n_zPnt= fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm)
-        par, rmsfit = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
+        #par, rmsfit = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
+        par, rmsfit, Res = fit_Grating_Eq(centers_in_pix, known_waves, alpha, theta, parm,plotalot=plotall)
+
         n_fr, n_fd, n_zPnt = par
         n_Wavelengths= DispCalc(Pixels, alpha-alpha_offset, theta, n_fr, n_fd, parm[2], n_zPnt)
     
@@ -843,11 +847,19 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
         '''
 
         
+        #if ('blue' in lamp.lower()) and (rmsfit > 1.0):
+            #coord_list_short = line_list[0][1:]
+            #wave_list_short = line_list[1][1:]
+            #line_list = np.array([coord_list_short,wave_list_short])
+            #print 'Refitting without first line.'
+            #yn = 'yes'
         if ('blue' in lamp.lower()) and (rmsfit > 1.0):
-            coord_list_short = line_list[0][1:]
-            wave_list_short = line_list[1][1:]
+            worst_index= np.argmax(Res)
+            
+            coord_list_short = np.delete(line_list[0], worst_index)
+            wave_list_short = np.delete(line_list[1], worst_index)
             line_list = np.array([coord_list_short,wave_list_short])
-            print 'Refitting without first line.'
+            print 'Refitting without worst line.'
             yn = 'yes'
         else:
             yn = 'no' #Don't refit again
