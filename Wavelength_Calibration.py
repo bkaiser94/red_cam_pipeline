@@ -854,7 +854,7 @@ def calibrate_now(lamp,zz_specname,fit_zpoint,zzceti,offset_file,plotall=True):
             #print 'Refitting without first line.'
             #yn = 'yes'
         if ('blue' in lamp.lower()) and (rmsfit > 1.0):
-            worst_index= np.argmax(Res)
+            worst_index= np.argmax(np.abs(Res))
             
             coord_list_short = np.delete(line_list[0], worst_index)
             wave_list_short = np.delete(line_list[1], worst_index)
